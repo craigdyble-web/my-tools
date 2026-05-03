@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>in
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Routine</title>
+
+<style>
+body {
+  font-family: -apple-system;
+  background: #0f0f0f;
+  color: white;
+  padding: 20px;
+}
+h1 { text-align: center; }
+
+.card {
+  background: #1c1c1e;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 10px;
+  background: #2ecc71;
+  color: white;
+  font-size: 16px;
+}
+
+.done {
+  background: #444 !important;
+  text-decoration: line-through;
+}
+
+.section {
+  margin-top: 15px;
+}
+
+.popup {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #1c1c1e;
+  padding: 20px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  display: none;
+  max-height: 60%;
+  overflow-y: auto;
+}
+
+.close {
+  margin-top: 10px;
+  background: #e74c3c;
+}
+</style>
+</head>
+
+<body>
+
+<h1>My Routine</h1>
+
+<div class="card" id="app"></div>
+
+<div class="popup" id="popup">
+  <h3 id="title"></h3>
+  <p id="info"></p>
+  <button class="close" onclick="closePopup()">Close</button>
+</div>
+
+<script>
+
+// 🧠 PRODUCT GUIDE
+const info = {
+
+"Cleanser": 
+"🧼 CeraVe Foaming Cleanser<br><br><b>HOW TO USE:</b><br>1. Wet face<br>2. Massage gently (30–60 sec)<br>3. Rinse<br><br><b>WHEN:</b><br>Morning + Night",
+
+"Cold Finish": 
+"❄️ Cold Water Finish<br><br><b>HOW TO USE:</b><br>1. End shower with cold water<br>2. 30–60 seconds<br><br><b>WHY:</b><br>Reduces puffiness + wakes face up",
+
+"Vitamin C": 
+"🍊 The Ordinary Vitamin C<br><br><b>HOW TO USE:</b><br>1. Pea-sized amount<br>2. Apply to dry face<br>3. Then moisturiser<br><br><b>WHEN:</b><br>Morning only<br><br><b>TIP:</b><br>If it stings → mix with moisturiser",
+
+"Moisturiser": 
+"💧 CeraVe Moisturising Lotion<br><br><b>HOW TO USE:</b><br>1. Apply after all products<br>2. Cover face + neck<br><br><b>WHEN:</b><br>Morning + Night",
+
+"Retinol": 
+"🌙 CeraVe Retinol Serum<br><br><b>HOW TO USE:</b><br>1. Pea-sized amount<br>2. Apply to dry skin<br>3. Then moisturiser<br><br><b>WHEN:</b><br>Night only (2–3x per week)<br><br>⚠️ Do NOT use with exfoliant",
+
+"Exfoliate": 
+"🧪 Paula’s Choice BHA<br><br><b>HOW TO USE:</b><br>1. Apply with hands or cotton pad<br>2. Leave on (do not wash off)<br><br><b>WHEN:</b><br>1–2x per week<br><br>⚠️ Do NOT use with retinol",
+
+"Tan": 
+"☀️ Bondi Sands Gradual Tan<br><br><b>HOW TO USE:</b><br>1. Apply small amount<br>2. Blend into face + neck<br>3. Wash hands after<br><br><b>WHEN:</b><br>2–3x per week<br><br><b>TIP:</b><br>Build slowly for natural look"
+};
+
+// 📅 WEEKLY PLAN
+const days = [
+{
+name:"Monday",
+am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
+pm:["Retinol","Moisturiser"]
+},
+{
+name:"Tuesday",
+am:["Cleanser","Cold Finish","Moisturiser"],
+pm:["Exfoliate","Moisturiser","Tan"]
+},
+{
+name:"Wednesday",
+am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
+pm:["Retinol","Moisturiser"]
+},
+{
+name:"Thursday",
+am:["Cleanser","Cold Finish","Moisturiser"],
+pm:["Moisturiser","Tan"]
+},
+{
+name:"Friday",
+am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
+pm:["Retinol","Moisturiser"]
+},
+{
+name:"Saturday",
+am:["Cleanser","Cold Finish","Moisturiser"],
+pm:["Exfoliate","Moisturiser"]
+},
+{
+name:"Sunday",
+am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
+pm:["Moisturiser","Tan"]
+}
+];
+
+// 📍 GET TODAY
+const today = new Date().getDay();
+const index = today === 0 ? 6 : today - 1;
+const day = days[index];
+
+const app = document.getElementById("app");
+
+// 🔘 BUILD BUTTONS
+function createButtons(section, items){
+  let html = `<div class="section"><h3>${section}</h3>`;
+  items.forEach((item,i)=>{
+    const key = day.name + section + i;
+    const done = localStorage.getItem(key) === "1" ? "done" : "";
+    html += `<button class="${done}" onclick="tap(this,'${key}','${item}')">${item}</button>`;
+  });
+  html += "</div>";
+  return html;
+}
+
+// 📲 RENDER
+app.innerHTML = `
+<h2>${day.name}</h2>
+${createButtons("AM", day.am)}
+${createButtons("PM", day.pm)}
+`;
+
+// ✅ BUTTON TAP
+function tap(el,key,item){
+  el.classList.toggle("done");
+  localStorage.setItem(key, el.classList.contains("done") ? "1" : "0");
+
+  document.getElementById("title").innerText = item;
+  document.getElementById("info").innerHTML = info[item];
+  document.getElementById("popup").style.display = "block";
+}
+
+// ❌ CLOSE POPUP
+function closePopup(){
+  document.getElementById("popup").style.display = "none";
+}
+
+</script>
+
+</body>
+</html>

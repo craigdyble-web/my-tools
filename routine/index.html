@@ -19,6 +19,7 @@ h1 { text-align:center; }
   padding:20px;
   border-radius:16px;
 }
+
 button {
   width:100%;
   padding:14px;
@@ -27,6 +28,23 @@ button {
   border-radius:10px;
   background:#2ecc71;
   color:white;
+  font-size:16px;
+}
+
+.popup {
+  position: fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#1c1c1e;
+  padding:20px;
+  border-top-left-radius:20px;
+  border-top-right-radius:20px;
+  display:none;
+}
+
+.close {
+  background:#e74c3c;
 }
 </style>
 </head>
@@ -37,21 +55,73 @@ button {
 
 <div class="card" id="app"></div>
 
+<div class="popup" id="popup">
+  <h3 id="title"></h3>
+  <p id="info"></p>
+  <button class="close" onclick="closePopup()">Close</button>
+</div>
+
 <script>
+
+// 🧠 PRODUCT GUIDE
+const info = {
+
+"Cleanser":
+"🧼 CeraVe Foaming Cleanser<br><br><b>How:</b> Wet face, massage 30–60 sec, rinse<br><b>When:</b> Morning + Night",
+
+"Moisturiser":
+"💧 CeraVe Moisturising Lotion<br><br><b>How:</b> Apply after all products<br><b>When:</b> Morning + Night",
+
+"SPF":
+"☀️ L'Oréal SPF 50<br><br><b>How:</b> Apply last step in morning<br><b>When:</b> Every morning<br>⚠️ Essential if using retinol",
+
+"Vitamin C":
+"🍊 Vitamin C Serum<br><br><b>How:</b> Pea-sized on dry skin<br><b>When:</b> Morning<br>⚠️ Can tingle (normal)",
+
+"Retinol":
+"🌙 CeraVe Retinol Serum<br><br><b>How:</b> Pea-sized on dry skin<br><b>When:</b> Night (2–3x week)<br>⚠️ Do NOT mix with exfoliant",
+
+"Tan":
+"🌞 Bondi Sands Gradual Tan<br><br><b>How:</b> Small amount, blend evenly<br><b>When:</b> Night (2–3x week)<br>⚠️ Wash hands after",
+
+"Exfoliate":
+"🧪 BHA Exfoliant<br><br><b>How:</b> Apply, leave on<br><b>When:</b> 1–2x week at night<br>⚠️ Do NOT mix with retinol"
+};
+
+// 📅 SIMPLE DAILY ROUTINE
 const day = "Today";
 
-const am = ["Cleanser","Moisturiser","SPF"];
+const am = ["Cleanser","Vitamin C","Moisturiser","SPF"];
 const pm = ["Cleanser","Retinol","Moisturiser"];
 
+// 📲 RENDER
 const app = document.getElementById("app");
 
-let html = "<h2>" + day + "</h2>";
-html += "<h3>AM</h3>";
-am.forEach(i => html += "<button>" + i + "</button>");
-html += "<h3>PM</h3>";
-pm.forEach(i => html += "<button>" + i + "</button>");
+function create(section, items){
+  let html = `<h3>${section}</h3>`;
+  items.forEach(i => {
+    html += `<button onclick="openPopup('${i}')">${i}</button>`;
+  });
+  return html;
+}
 
-app.innerHTML = html;
+app.innerHTML = `
+<h2>${day}</h2>
+${create("AM", am)}
+${create("PM", pm)}
+`;
+
+// 📱 POPUP
+function openPopup(item){
+  document.getElementById("title").innerText = item;
+  document.getElementById("info").innerHTML = info[item];
+  document.getElementById("popup").style.display = "block";
+}
+
+function closePopup(){
+  document.getElementById("popup").style.display = "none";
+}
+
 </script>
 
 </body>

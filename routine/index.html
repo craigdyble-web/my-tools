@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>in
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Routine</title>
@@ -79,63 +79,60 @@ button {
 const info = {
 
 "Cleanser": 
-"🧼 CeraVe Foaming Cleanser<br><br><b>HOW TO USE:</b><br>1. Wet face<br>2. Massage gently (30–60 sec)<br>3. Rinse<br><br><b>WHEN:</b><br>Morning + Night",
-
-"Cold Finish": 
-"❄️ Cold Water Finish<br><br><b>HOW TO USE:</b><br>1. End shower with cold water<br>2. 30–60 seconds<br><br><b>WHY:</b><br>Reduces puffiness + wakes face up",
+"🧼 CeraVe Foaming Cleanser<br><br>Massage 30–60 sec, rinse<br><br>Morning + Night",
 
 "Vitamin C": 
-"🍊 The Ordinary Vitamin C<br><br><b>HOW TO USE:</b><br>1. Pea-sized amount<br>2. Apply to dry face<br>3. Then moisturiser<br><br><b>WHEN:</b><br>Morning only<br><br><b>TIP:</b><br>If it stings → mix with moisturiser",
+"🍊 L’Oréal Vitamin C Serum<br><br>Small amount<br><br>Morning only<br><br>Start every other day",
 
 "Moisturiser": 
-"💧 CeraVe Moisturising Lotion<br><br><b>HOW TO USE:</b><br>1. Apply after all products<br>2. Cover face + neck<br><br><b>WHEN:</b><br>Morning + Night",
+"💧 CeraVe Moisturising Lotion<br><br>After products<br><br>Morning + Night",
+
+"SPF": 
+"☀️ SPF 50<br><br>Last step every morning<br><br>Do NOT skip",
 
 "Retinol": 
-"🌙 CeraVe Retinol Serum<br><br><b>HOW TO USE:</b><br>1. Pea-sized amount<br>2. Apply to dry skin<br>3. Then moisturiser<br><br><b>WHEN:</b><br>Night only (2–3x per week)<br><br>⚠️ Do NOT use with exfoliant",
-
-"Exfoliate": 
-"🧪 Paula’s Choice BHA<br><br><b>HOW TO USE:</b><br>1. Apply with hands or cotton pad<br>2. Leave on (do not wash off)<br><br><b>WHEN:</b><br>1–2x per week<br><br>⚠️ Do NOT use with retinol",
+"🌙 CeraVe Retinol<br><br>Pea-sized<br><br>Night only (2–3x per week)<br><br>No tan same night",
 
 "Tan": 
-"☀️ Bondi Sands Gradual Tan<br><br><b>HOW TO USE:</b><br>1. Apply small amount<br>2. Blend into face + neck<br>3. Wash hands after<br><br><b>WHEN:</b><br>2–3x per week<br><br><b>TIP:</b><br>Build slowly for natural look"
+"🟤 Bondi Sands Tan<br><br>Small amount<br><br>2–3x per week<br><br>Non-retinol nights"
 };
 
 // 📅 WEEKLY PLAN
 const days = [
 {
 name:"Monday",
-am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
-pm:["Retinol","Moisturiser"]
+am:["Cleanser","Vitamin C","Moisturiser","SPF"],
+pm:["Cleanser","Retinol","Moisturiser"]
 },
 {
 name:"Tuesday",
-am:["Cleanser","Cold Finish","Moisturiser"],
-pm:["Exfoliate","Moisturiser","Tan"]
+am:["Cleanser","Moisturiser","SPF"],
+pm:["Cleanser","Tan"]
 },
 {
 name:"Wednesday",
-am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
-pm:["Retinol","Moisturiser"]
+am:["Cleanser","Vitamin C","Moisturiser","SPF"],
+pm:["Cleanser","Moisturiser"]
 },
 {
 name:"Thursday",
-am:["Cleanser","Cold Finish","Moisturiser"],
-pm:["Moisturiser","Tan"]
+am:["Cleanser","Moisturiser","SPF"],
+pm:["Cleanser","Retinol","Moisturiser"]
 },
 {
 name:"Friday",
-am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
-pm:["Retinol","Moisturiser"]
+am:["Cleanser","Vitamin C","Moisturiser","SPF"],
+pm:["Cleanser","Tan"]
 },
 {
 name:"Saturday",
-am:["Cleanser","Cold Finish","Moisturiser"],
-pm:["Exfoliate","Moisturiser"]
+am:["Cleanser","Moisturiser","SPF"],
+pm:["Cleanser","Moisturiser"]
 },
 {
 name:"Sunday",
-am:["Cleanser","Cold Finish","Vitamin C","Moisturiser"],
-pm:["Moisturiser","Tan"]
+am:["Cleanser","Vitamin C","Moisturiser","SPF"],
+pm:["Cleanser","Moisturiser"]
 }
 ];
 
@@ -183,4 +180,4 @@ function closePopup(){
 </script>
 
 </body>
-</html>
+</html>p

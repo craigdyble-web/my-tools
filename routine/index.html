@@ -3,32 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My Routine</title>
+<title>Routine</title>
 
 <style>
 body {
-  font-family: -apple-system;
+  font-family: Arial;
   background: #0f0f0f;
   color: white;
   padding: 20px;
 }
-h1 { text-align: center; }
+h1 { text-align:center; }
 
 .card {
-  background: #1c1c1e;
-  padding: 20px;
-  border-radius: 16px;
+  background:#1c1c1e;
+  padding:20px;
+  border-radius:16px;
 }
-
 button {
-  width: 100%;
-  padding: 14px;
-  margin: 6px 0;
-  border: none;
-  border-radius: 10px;
-  background: #2ecc71;
-  color: white;
-  font-size: 16px;
+  width:100%;
+  padding:14px;
+  margin:6px 0;
+  border:none;
+  border-radius:10px;
+  background:#2ecc71;
+  color:white;
 }
 </style>
 </head>
@@ -40,35 +38,20 @@ button {
 <div class="card" id="app"></div>
 
 <script>
-const days = [
-{ name:"Monday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Retinol","Moisturiser"] },
-{ name:"Tuesday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Tan"] },
-{ name:"Wednesday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] },
-{ name:"Thursday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Retinol","Moisturiser"] },
-{ name:"Friday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Tan"] },
-{ name:"Saturday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] },
-{ name:"Sunday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] }
-];
+const day = "Today";
 
-const today = new Date().getDay();
-const index = today === 0 ? 6 : today - 1;
-const day = days[index];
+const am = ["Cleanser","Moisturiser","SPF"];
+const pm = ["Cleanser","Retinol","Moisturiser"];
 
 const app = document.getElementById("app");
 
-function create(section, items){
-  let html = `<h3>${section}</h3>`;
-  items.forEach(i => {
-    html += `<button>${i}</button>`;
-  });
-  return html;
-}
+let html = "<h2>" + day + "</h2>";
+html += "<h3>AM</h3>";
+am.forEach(i => html += "<button>" + i + "</button>");
+html += "<h3>PM</h3>";
+pm.forEach(i => html += "<button>" + i + "</button>");
 
-app.innerHTML = `
-<h2>${day.name}</h2>
-${create("AM", day.am)}
-${create("PM", day.pm)}
-`;
+app.innerHTML = html;
 </script>
 
 </body>

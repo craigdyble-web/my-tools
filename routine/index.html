@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Routine</title>
+<title>My Routine</title>
 
 <style>
 body {
@@ -30,34 +30,6 @@ button {
   color: white;
   font-size: 16px;
 }
-
-.done {
-  background: #444 !important;
-  text-decoration: line-through;
-}
-
-.section {
-  margin-top: 15px;
-}
-
-.popup {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #1c1c1e;
-  padding: 20px;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  display: none;
-  max-height: 60%;
-  overflow-y: auto;
-}
-
-.close {
-  margin-top: 10px;
-  background: #e74c3c;
-}
 </style>
 </head>
 
@@ -67,116 +39,36 @@ button {
 
 <div class="card" id="app"></div>
 
-<div class="popup" id="popup">
-  <h3 id="title"></h3>
-  <p id="info"></p>
-  <button class="close" onclick="closePopup()">Close</button>
-</div>
-
 <script>
-
-// 🧠 PRODUCT GUIDE
-const info = {
-
-"Cleanser": 
-"🧼 CeraVe Foaming Cleanser<br><br>Massage 30–60 sec, rinse<br><br>Morning + Night",
-
-"Vitamin C": 
-"🍊 L’Oréal Vitamin C Serum<br><br>Small amount<br><br>Morning only<br><br>Start every other day",
-
-"Moisturiser": 
-"💧 CeraVe Moisturising Lotion<br><br>After products<br><br>Morning + Night",
-
-"SPF": 
-"☀️ SPF 50<br><br>Last step every morning<br><br>Do NOT skip",
-
-"Retinol": 
-"🌙 CeraVe Retinol<br><br>Pea-sized<br><br>Night only (2–3x per week)<br><br>No tan same night",
-
-"Tan": 
-"🟤 Bondi Sands Tan<br><br>Small amount<br><br>2–3x per week<br><br>Non-retinol nights"
-};
-
-// 📅 WEEKLY PLAN
 const days = [
-{
-name:"Monday",
-am:["Cleanser","Vitamin C","Moisturiser","SPF"],
-pm:["Cleanser","Retinol","Moisturiser"]
-},
-{
-name:"Tuesday",
-am:["Cleanser","Moisturiser","SPF"],
-pm:["Cleanser","Tan"]
-},
-{
-name:"Wednesday",
-am:["Cleanser","Vitamin C","Moisturiser","SPF"],
-pm:["Cleanser","Moisturiser"]
-},
-{
-name:"Thursday",
-am:["Cleanser","Moisturiser","SPF"],
-pm:["Cleanser","Retinol","Moisturiser"]
-},
-{
-name:"Friday",
-am:["Cleanser","Vitamin C","Moisturiser","SPF"],
-pm:["Cleanser","Tan"]
-},
-{
-name:"Saturday",
-am:["Cleanser","Moisturiser","SPF"],
-pm:["Cleanser","Moisturiser"]
-},
-{
-name:"Sunday",
-am:["Cleanser","Vitamin C","Moisturiser","SPF"],
-pm:["Cleanser","Moisturiser"]
-}
+{ name:"Monday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Retinol","Moisturiser"] },
+{ name:"Tuesday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Tan"] },
+{ name:"Wednesday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] },
+{ name:"Thursday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Retinol","Moisturiser"] },
+{ name:"Friday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Tan"] },
+{ name:"Saturday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] },
+{ name:"Sunday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] }
 ];
 
-// 📍 GET TODAY
 const today = new Date().getDay();
 const index = today === 0 ? 6 : today - 1;
 const day = days[index];
 
 const app = document.getElementById("app");
 
-// 🔘 BUILD BUTTONS
-function createButtons(section, items){
-  let html = `<div class="section"><h3>${section}</h3>`;
-  items.forEach((item,i)=>{
-    const key = day.name + section + i;
-    const done = localStorage.getItem(key) === "1" ? "done" : "";
-    html += `<button class="${done}" onclick="tap(this,'${key}','${item}')">${item}</button>`;
+function create(section, items){
+  let html = `<h3>${section}</h3>`;
+  items.forEach(i => {
+    html += `<button>${i}</button>`;
   });
-  html += "</div>";
   return html;
 }
 
-// 📲 RENDER
 app.innerHTML = `
 <h2>${day.name}</h2>
-${createButtons("AM", day.am)}
-${createButtons("PM", day.pm)}
+${create("AM", day.am)}
+${create("PM", day.pm)}
 `;
-
-// ✅ BUTTON TAP
-function tap(el,key,item){
-  el.classList.toggle("done");
-  localStorage.setItem(key, el.classList.contains("done") ? "1" : "0");
-
-  document.getElementById("title").innerText = item;
-  document.getElementById("info").innerHTML = info[item];
-  document.getElementById("popup").style.display = "block";
-}
-
-// ❌ CLOSE POPUP
-function closePopup(){
-  document.getElementById("popup").style.display = "none";
-
-
 </script>
 
 </body>

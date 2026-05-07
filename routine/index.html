@@ -3,16 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Routine</title>
+<title>My Routine</title>
+
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2922/2922510.png">
 
 <style>
 body {
-  font-family: Arial;
+  font-family: -apple-system, Arial;
   background: #0f0f0f;
   color: white;
   padding: 20px;
 }
-h1 { text-align:center; }
+
+h1 {
+  text-align:center;
+}
 
 .card {
   background:#1c1c1e;
@@ -29,6 +34,15 @@ button {
   background:#2ecc71;
   color:white;
   font-size:16px;
+  transition:0.2s;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.done {
+  background:#444 !important;
 }
 
 .popup {
@@ -41,6 +55,8 @@ button {
   border-top-left-radius:20px;
   border-top-right-radius:20px;
   display:none;
+  max-height:60%;
+  overflow-y:auto;
 }
 
 .close {
@@ -63,61 +79,82 @@ button {
 
 <script>
 
-// 🧠 PRODUCT GUIDE
+// 🧠 PRODUCT INFO
 const info = {
 
 "Cleanser":
-"🧼 CeraVe Foaming Cleanser<br><br><b>How:</b> Wet face, massage 30–60 sec, rinse<br><b>When:</b> Morning + Night",
+"🧼 CeraVe Foaming Cleanser<br><br><b>How:</b> Massage 30–60 sec, rinse<br><b>When:</b> Morning + Night",
 
 "Moisturiser":
-"💧 CeraVe Moisturising Lotion<br><br><b>How:</b> Apply after all products<br><b>When:</b> Morning + Night",
+"💧 CeraVe Moisturising Lotion<br><br><b>How:</b> Apply after products<br><b>When:</b> Morning + Night",
 
 "SPF":
-"☀️ L'Oréal SPF 50<br><br><b>How:</b> Apply last step in morning<br><b>When:</b> Every morning<br>⚠️ Essential if using retinol",
+"☀️ SPF 50<br><br><b>How:</b> Last step every morning<br><b>When:</b> Daily<br><br>⚠️ Essential with retinol",
 
 "Vitamin C":
-"🍊 Vitamin C Serum<br><br><b>How:</b> Pea-sized on dry skin<br><b>When:</b> Morning<br>⚠️ Can tingle (normal)",
+"🍊 L’Oréal Vitamin C Serum<br><br><b>How:</b> Small amount<br><b>When:</b> Morning<br><br>⚠️ Start every other day<br>⚠️ Contains salicylic acid",
 
 "Retinol":
-"🌙 CeraVe Retinol Serum<br><br><b>How:</b> Pea-sized on dry skin<br><b>When:</b> Night (2–3x week)<br>⚠️ Do NOT mix with exfoliant",
+"🌙 CeraVe Retinol Serum<br><br><b>How:</b> Pea-sized<br><b>When:</b> Night (2–3x week)<br><br>⚠️ Do NOT use with tan",
 
 "Tan":
-"🌞 Bondi Sands Gradual Tan<br><br><b>How:</b> Small amount, blend evenly<br><b>When:</b> Night (2–3x week)<br>⚠️ Wash hands after",
-
-"Exfoliate":
-"🧪 BHA Exfoliant<br><br><b>How:</b> Apply, leave on<br><b>When:</b> 1–2x week at night<br>⚠️ Do NOT mix with retinol"
+"🟤 Bondi Sands Tan<br><br><b>How:</b> Small amount<br><b>When:</b> Night (2–3x week)<br><br>⚠️ Use on non-retinol nights"
 };
 
-// 📅 SIMPLE DAILY ROUTINE
-const day = "Today";
+// 📅 WEEK PLAN
+const days = [
+{ name:"Monday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Retinol","Moisturiser"] },
+{ name:"Tuesday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Tan"] },
+{ name:"Wednesday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] },
+{ name:"Thursday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Retinol","Moisturiser"] },
+{ name:"Friday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Tan"] },
+{ name:"Saturday", am:["Cleanser","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] },
+{ name:"Sunday", am:["Cleanser","Vitamin C","Moisturiser","SPF"], pm:["Cleanser","Moisturiser"] }
+];
 
-const am = ["Cleanser","Vitamin C","Moisturiser","SPF"];
-const pm = ["Cleanser","Retinol","Moisturiser"];
+// 📍 GET TODAY
+const today = new Date().getDay();
+const index = today === 0 ? 6 : today - 1;
+const day = days[index];
 
-// 📲 RENDER
 const app = document.getElementById("app");
 
+// 🔘 BUILD BUTTONS
 function create(section, items){
   let html = `<h3>${section}</h3>`;
-  items.forEach(i => {
-    html += `<button onclick="openPopup('${i}')">${i}</button>`;
+  items.forEach((item,i)=>{
+    const key = day.name + section + i;
+    const isDone = localStorage.getItem(key) === "1";
+
+    html += `<button class="${isDone ? 'done' : ''}" 
+      onclick="tap(this,'${key}','${item}')">
+      ${item}${isDone ? " ✔️" : ""}
+    </button>`;
   });
   return html;
 }
 
+// 📲 RENDER
 app.innerHTML = `
-<h2>${day}</h2>
-${create("AM", am)}
-${create("PM", pm)}
+<h2>${day.name}</h2>
+${create("AM", day.am)}
+${create("PM", day.pm)}
 `;
 
-// 📱 POPUP
-function openPopup(item){
+// ✅ TAP FUNCTION
+function tap(el,key,item){
+  const done = el.classList.toggle("done");
+
+  localStorage.setItem(key, done ? "1" : "0");
+
+  el.innerHTML = item + (done ? " ✔️" : "");
+
   document.getElementById("title").innerText = item;
   document.getElementById("info").innerHTML = info[item];
   document.getElementById("popup").style.display = "block";
 }
 
+// ❌ CLOSE POPUP
 function closePopup(){
   document.getElementById("popup").style.display = "none";
 }

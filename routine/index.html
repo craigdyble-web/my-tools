@@ -59,15 +59,61 @@ button:active {
   display:none;
   max-height:60%;
   overflow-y:auto;
+  box-sizing:border-box;
 }
 
 .close {
   background:#e74c3c;
 }
+
+/* PASSWORD SCREEN */
+#lockScreen {
+  position: fixed;
+  inset: 0;
+  background: #0f0f0f;
+  color: white;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, Arial;
+  padding: 25px;
+  text-align: center;
+}
+
+#lockScreen h2 {
+  margin-bottom: 10px;
+}
+
+#passwordBox {
+  width: 100%;
+  max-width: 320px;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+  margin: 12px 0;
+  text-align: center;
+}
+
+#wrongPassword {
+  color: #ff6b6b;
+  display: none;
+}
 </style>
 </head>
 
 <body>
+
+<!-- PASSWORD LOCK -->
+<div id="lockScreen">
+  <h2>🔒 Tool Locked</h2>
+  <p>Enter password to open your routine</p>
+  <input id="passwordBox" type="password" placeholder="Password">
+  <button onclick="unlockTool()">Unlock</button>
+  <p id="wrongPassword">Wrong password</p>
+</div>
 
 <h1>My Routine</h1>
 
@@ -80,6 +126,27 @@ button:active {
 </div>
 
 <script>
+
+// 🔐 PASSWORD
+const correctPassword = "craig123";
+
+function unlockTool() {
+  const password = document.getElementById("passwordBox").value;
+
+  if (password === correctPassword) {
+    document.getElementById("lockScreen").style.display = "none";
+    localStorage.setItem("routineUnlocked", "1");
+  } else {
+    document.getElementById("wrongPassword").style.display = "block";
+  }
+}
+
+// Keeps it unlocked after first login
+if (localStorage.getItem("routineUnlocked") === "1") {
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("lockScreen").style.display = "none";
+  });
+}
 
 // 🧠 PRODUCT INFO
 const info = {

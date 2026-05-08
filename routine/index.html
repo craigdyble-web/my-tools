@@ -245,8 +245,11 @@ Men don’t read instructions.<br>
 This app stops you wrecking your face.
 </p>
 
-<div class="quoteBox">
-  <div class="quoteTitle">Quote of the Day</div>
+<button onclick="toggleQuote()" id="quoteButton">
+  Quote of the Day
+</button>
+
+<div class="quoteBox" id="quoteBox" style="display:none;">
   <div class="quoteText">
     "Raise first, die last"
   </div>
@@ -269,6 +272,16 @@ function tap(el,key,item){
 // ❌ CLOSE POPUP
 function closePopup(){
   document.getElementById("popup").style.display = "none";
+}
+
+function toggleQuote(){
+  const box = document.getElementById("quoteBox");
+
+  if(box.style.display === "none"){
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+  }
 }
 
 </script>

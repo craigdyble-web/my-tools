@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,6 +24,38 @@ h1 {
   background:#1c1c1e;
   padding:20px;
   border-radius:16px;
+}
+
+.dailyQuote {
+  text-align: center;
+  color: #9a9a9a;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 5px 0 20px;
+}
+
+.quoteBox {
+  background:#151515;
+  border:1px solid #2a2a2a;
+  border-radius:14px;
+  padding:14px;
+  margin:0 0 20px;
+  text-align:center;
+}
+
+.quoteTitle {
+  color:#666;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+
+.quoteText {
+  color:white;
+  font-size:18px;
+  font-weight:600;
+  line-height:1.4;
 }
 
 button {
@@ -164,7 +197,7 @@ const info = {
 "🍊 L’Oréal Vitamin C Serum<br><br><b>How:</b> Small amount<br><b>When:</b> Morning<br><br>⚠️ Start every other day<br>⚠️ Contains salicylic acid",
 
 "Retinol":
-"🌙 CeraVe Retinol Serum<br><br><b>How:</b> Pea-sized<br><b>When:</b> Night (2–3x week)<br><br>⚠️ Do NOT use with tan",
+"🌙 CeraVe Retinol Serum<br><br><b>How:</b> Pea-sized<br><b>When:</b> Night (2–3x week)<br><br>⚠️ SPF 50 is essential tomorrow<br>⚠️ Do NOT use with tan",
 
 "Tan":
 "🟤 Bondi Sands Tan<br><br><b>How:</b> Small amount<br><b>When:</b> Night (2–3x week)<br><br>⚠️ Use on non-retinol nights"
@@ -195,7 +228,7 @@ function create(section, items){
     const key = day.name + section + i;
     const isDone = localStorage.getItem(key) === "1";
 
-    html += `<button class="${isDone ? 'done' : ''}" 
+    html += `<button class="${isDone ? 'done' : ''}"
       onclick="tap(this,'${key}','${item}')">
       ${item}
     </button>`;
@@ -206,6 +239,19 @@ function create(section, items){
 // 📲 RENDER
 app.innerHTML = `
 <h2>${day.name}</h2>
+
+<p class="dailyQuote">
+Men don’t read instructions.<br>
+This app stops you wrecking your face.
+</p>
+
+<div class="quoteBox">
+  <div class="quoteTitle">Quote of the Day</div>
+  <div class="quoteText">
+    "Raise first, die last"
+  </div>
+</div>
+
 ${create("AM", day.am)}
 ${create("PM", day.pm)}
 `;
@@ -229,3 +275,4 @@ function closePopup(){
 
 </body>
 </html>
+```

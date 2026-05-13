@@ -1,4 +1,4 @@
-
+```html
 <!-- index.html -->
 <!DOCTYPE html>
 <html>
@@ -20,6 +20,20 @@ body {
 }
 
 h1 {
+  text-align:center;
+}
+
+.backButton {
+  display:block;
+  width:auto;
+  background:#151515;
+  border:1px solid #2a2a2a;
+  color:#cfcfcf;
+  font-size:14px;
+  padding:10px 14px;
+  border-radius:12px;
+  margin:0 0 15px;
+  text-decoration:none;
   text-align:center;
 }
 
@@ -201,6 +215,8 @@ button:active {
   <p id="wrongPassword">Wrong password</p>
 </div>
 
+<a class="backButton" href="../index.html">← Back to Tools</a>
+
 <h1>My Routine</h1>
 
 <div class="card" id="app"></div>
@@ -274,6 +290,521 @@ const day = days[index];
 
 const app = document.getElementById("app");
 
+// 💬 DAILY QUOTES
+const quotesText = `
+1. “Success is the sum of small efforts repeated day in and day out.” — Robert Collier
+2. “Do what you can, with what you have, where you are.” — Theodore Roosevelt
+3. “Action is the foundational key to all success.” — Pablo Picasso
+4. “Dream big and dare to fail.” — Norman Vaughan
+5. “Discipline is choosing between what you want now and what you want most.”
+6. “Small steps every day build massive results.”
+7. “The harder you work for something, the greater you’ll feel when you achieve it.”
+8. “Consistency beats intensity.”
+9. “Success begins at the edge of your comfort zone.”
+10. “You miss 100% of the shots you don’t take.” — Wayne Gretzky
+11. “Progress is better than perfection.”
+12. “Focus on the goal, not the obstacle.”
+13. “Winners are not afraid of losing.”
+14. “A year from now you’ll wish you started today.”
+15. “Push yourself because no one else is going to do it for you.”
+16. “Hard times build strong people.”
+17. “Stay patient and trust your journey.”
+18. “Your only limit is your mind.”
+19. “Success grows from persistence.”
+20. “Fall seven times, stand up eight.” — Japanese Proverb
+21. “Every accomplishment starts with the decision to try.”
+22. “The future depends on what you do today.” — Mahatma Gandhi
+23. “Pressure creates diamonds.”
+24. “Nothing changes if nothing changes.”
+25. “Work in silence and let success make the noise.”
+26. “Be stronger than your excuses.”
+27. “Difficult roads often lead to beautiful destinations.”
+28. “Momentum comes from movement.”
+29. “Great things never come from comfort zones.”
+30. “Stay hungry. Stay foolish.” — Steve Jobs
+31. “Done is better than perfect.”
+32. “Fear kills more dreams than failure ever will.”
+33. “Success loves preparation.”
+34. “The comeback is always stronger than the setback.”
+35. “Your habits shape your future.”
+36. “The secret of getting ahead is getting started.” — Mark Twain
+37. “Don’t stop until you’re proud.”
+38. “You become what you repeatedly do.”
+39. “Growth begins when excuses end.”
+40. “Keep going. Everything you need will come to you at the right time.”
+41. “Success is built in ordinary days.”
+42. “Believe you can and you’re halfway there.” — Theodore Roosevelt
+43. “One day or day one. You decide.”
+44. “Dreams require action.”
+45. “The pain of discipline is lighter than the pain of regret.”
+46. “Your future self is watching.”
+47. “Confidence is built through action.”
+48. “Energy flows where focus goes.”
+49. “Strength grows in struggle.”
+50. “Keep showing up.”
+51. “Life is what happens while you are busy making other plans.” — John Lennon
+52. “The simple things are often the most meaningful.”
+53. “Happiness depends upon ourselves.” — Aristotle
+54. “Time is the most valuable thing you can spend.”
+55. “Peace begins with acceptance.”
+56. “Kindness costs nothing.”
+57. “A calm mind is a powerful mind.”
+58. “Life rewards courage.”
+59. “Experience is the best teacher.”
+60. “Gratitude turns what we have into enough.”
+61. “Every day is a fresh beginning.”
+62. “Wisdom listens more than it speaks.”
+63. “The older you get, the more peace matters.”
+64. “Slow down and enjoy the moment.”
+65. “Life is built from moments, not possessions.”
+66. “Patience is strength.”
+67. “The best lessons come from difficult seasons.”
+68. “You cannot control everything, only your response.”
+69. “Joy is found in ordinary moments.”
+70. “Protect your peace.”
+71. “Life moves quickly. Appreciate the present.”
+72. “The quieter you become, the more you can hear.”
+73. “Truth stands without support.”
+74. “Simplicity is the ultimate sophistication.” — Leonardo da Vinci
+75. “Nothing lasts forever, and that is both sad and beautiful.”
+76. “Life becomes lighter when you stop carrying what isn’t yours.”
+77. “You grow through what you go through.”
+78. “A grateful heart sees abundance.”
+79. “Wisdom comes from reflection.”
+80. “Protect your energy carefully.”
+81. “Life is less about finding yourself and more about creating yourself.”
+82. “Sometimes silence is the best answer.”
+83. “Every storm runs out of rain.”
+84. “The meaning of life is found in connection.”
+85. “Freedom begins when fear ends.”
+86. “Peace is more valuable than proving a point.”
+87. “Your perspective shapes your reality.”
+88. “Let go or be dragged.” — Zen Proverb
+89. “Growth requires honesty.”
+90. “Moments matter more than things.”
+91. “You don’t need to rush your healing.”
+92. “Stillness is underrated.”
+93. “Life is not a race.”
+94. “Clarity comes from action.”
+95. “The best investment is in yourself.”
+96. “Wisdom is knowing when to walk away.”
+97. “Protect the life you are building.”
+98. “You survive more than you think you can.”
+99. “The little things become the big things.”
+100. “Life rewards authenticity.”
+101. “Confidence grows when you keep promises to yourself.”
+102. “You are stronger than your doubts.”
+103. “Mindset changes everything.”
+104. “Don’t shrink yourself to fit places you’ve outgrown.”
+105. “Your attitude determines your direction.”
+106. “The way you speak to yourself matters.”
+107. “You become what you believe.”
+108. “Confidence is quiet.”
+109. “Comparison steals joy.”
+110. “Self-respect changes everything.”
+111. “You teach people how to treat you.”
+112. “Be proud of how far you’ve come.”
+113. “Your value doesn’t decrease because someone fails to see it.”
+114. “The strongest people keep going.”
+115. “Don’t let fear make your decisions.”
+116. “Your mindset is your superpower.”
+117. “The battle is often in your own head.”
+118. “You can start over anytime.”
+119. “Stop doubting and start doing.”
+120. “Confidence comes from preparation.”
+121. “Growth starts with discomfort.”
+122. “You owe yourself the life you want.”
+123. “Never dim your light to make others comfortable.”
+124. “The strongest approval comes from within.”
+125. “Your story is still being written.”
+126. “Believe in your ability to adapt.”
+127. “Self-control is power.”
+128. “Strength is staying calm under pressure.”
+129. “Your thoughts shape your future.”
+130. “Protect your confidence from negativity.”
+131. “You are capable of rebuilding.”
+132. “Success starts with self-belief.”
+133. “Trust the process.”
+134. “You are more resilient than you realise.”
+135. “Keep your standards high.”
+136. “Growth requires patience.”
+137. “Fear fades when you face it.”
+138. “Your energy introduces you before you speak.”
+139. “You don’t need permission to improve your life.”
+140. “Resilience is built one hard day at a time.”
+141. “A focused mind is unstoppable.”
+142. “You cannot pour from an empty cup.”
+143. “Inner peace is a form of strength.”
+144. “Success begins with discipline.”
+145. “Be loyal to your future self.”
+146. “Your standards shape your life.”
+147. “Protect your boundaries.”
+148. “Confidence is built through repetition.”
+149. “Your mindset becomes your reality.”
+150. “You already survived your hardest days.”
+151. “Family is where life begins and love never ends.”
+152. “Love is shown through actions.”
+153. “A strong relationship needs honesty.”
+154. “The best memories are built together.”
+155. “Children remember presence more than presents.”
+156. “Respect matters more than charm.”
+157. “True love brings peace, not confusion.”
+158. “Trust takes years to build and seconds to break.”
+159. “Kind words cost nothing.”
+160. “The people who matter most deserve your time.”
+161. “Real connections survive hard conversations.”
+162. “Forgiveness is freedom.”
+163. “Healthy relationships feel safe.”
+164. “A good heart is attractive.”
+165. “Love grows through effort.”
+166. “Loyalty is rare.”
+167. “Communication solves what silence destroys.”
+168. “Home is the people, not the place.”
+169. “Strong families grow through difficult times.”
+170. “Listen fully before responding.”
+171. “Love should not feel like a battle every day.”
+172. “People heal in safe environments.”
+173. “The right people bring out your best.”
+174. “Time together is priceless.”
+175. “Children learn from what they see.”
+176. “A peaceful home changes everything.”
+177. “Real love respects boundaries.”
+178. “Patience strengthens relationships.”
+179. “The strongest bonds survive storms.”
+180. “Love without respect cannot last.”
+181. “Shared laughter keeps relationships alive.”
+182. “Protect the people you love.”
+183. “Trust actions more than words.”
+184. “Love is consistency.”
+185. “Good relationships require effort from both sides.”
+186. “You deserve relationships that bring peace.”
+187. “Love is built through small moments.”
+188. “The best gift is your attention.”
+189. “Family gives strength.”
+190. “A kind heart leaves a lasting impact.”
+191. “Strong people apologise when necessary.”
+192. “Respect creates stability.”
+193. “A healthy relationship should not drain you.”
+194. “Presence matters.”
+195. “Love grows where honesty lives.”
+196. “Choose peace over drama.”
+197. “The people beside you shape your future.”
+198. “A real connection feels natural.”
+199. “Family can be your greatest support.”
+200. “The right people stay during difficult times.”
+201. “Creativity begins with curiosity.”
+202. “Ideas are worthless without action.”
+203. “Your imagination is a powerful tool.”
+204. “Every creator starts as a beginner.”
+205. “Build the thing you wish existed.”
+206. “Creativity thrives in freedom.”
+207. “The best ideas often sound strange at first.”
+208. “Dreams grow through consistent work.”
+209. “Art reflects the soul.”
+210. “Innovation comes from experimentation.”
+211. “Create more than you consume.”
+212. “Inspiration is everywhere if you pay attention.”
+213. “Your uniqueness is your advantage.”
+214. “Ideas need structure to survive.”
+215. “Passion fuels persistence.”
+216. “Every masterpiece started rough.”
+217. “Creativity rewards courage.”
+218. “The world remembers builders.”
+219. “You don’t need perfect conditions to start.”
+220. “Your work improves through repetition.”
+221. “Curiosity keeps the mind alive.”
+222. “Dreams need deadlines.”
+223. “Your imagination can change your future.”
+224. “Creative people see possibilities.”
+225. “A small idea can become something massive.”
+226. “Progress creates momentum.”
+227. “Make something today.”
+228. “Perfection kills creativity.”
+229. “The best projects come from obsession.”
+230. “Creative work requires patience.”
+231. “Keep refining your craft.”
+232. “Originality comes from authenticity.”
+233. “A creative life is never boring.”
+234. “The process matters.”
+235. “Great ideas often arrive quietly.”
+236. “You learn by creating.”
+237. “Build first, improve later.”
+238. “Vision gives direction.”
+239. “Your work should excite you.”
+240. “Dreams become real through effort.”
+241. “Creation is a form of courage.”
+242. “Your ideas deserve a chance.”
+243. “Start messy.”
+244. “Passion creates energy.”
+245. “Creative momentum is powerful.”
+246. “Your imagination is an asset.”
+247. “Every big achievement starts small.”
+248. “The best builders stay curious.”
+249. “Keep experimenting.”
+250. “Make your vision real.”
+251. “Rock bottom can become a foundation.”
+252. “Healing takes time.”
+253. “You are not defined by your worst moment.”
+254. “Pain changes people.”
+255. “Strength is continuing despite uncertainty.”
+256. “Recovery is not linear.”
+257. “Hard seasons create wiser people.”
+258. “You can rebuild your life.”
+259. “Scars prove survival.”
+260. “Some battles are invisible.”
+261. “You don’t have to heal overnight.”
+262. “The strongest people adapt.”
+263. “Your comeback starts with one decision.”
+264. “Every setback carries a lesson.”
+265. “Healing begins when honesty begins.”
+266. “You survived for a reason.”
+267. “Growth often feels uncomfortable.”
+268. “Strength is choosing not to quit.”
+269. “One day at a time.”
+270. “Keep moving forward.”
+271. “You are allowed to rest.”
+272. “Survival itself is strength.”
+273. “The storm shaped you.”
+274. “Healing requires patience.”
+275. “Not every chapter defines the story.”
+276. “Strength often looks quiet.”
+277. “Difficult experiences build perspective.”
+278. “You can rise again.”
+279. “Peace is part of healing.”
+280. “Resilience grows slowly.”
+281. “You become stronger through endurance.”
+282. “Your future can be brighter than your past.”
+283. “Even broken things can become beautiful.”
+284. “You are still here.”
+285. “Healing is progress, not perfection.”
+286. “The hardest chapters create the deepest wisdom.”
+287. “Your past does not control your future.”
+288. “Recovery begins with hope.”
+289. “Strong people keep rebuilding.”
+290. “Time helps heal.”
+291. “Pain can create purpose.”
+292. “Resilience is built quietly.”
+293. “Some endings create better beginnings.”
+294. “You are stronger now.”
+295. “The human spirit is resilient.”
+296. “Every sunrise is another opportunity.”
+297. “Healing happens in stages.”
+298. “You are capable of growth after loss.”
+299. “The future is unwritten.”
+300. “Your strength is already proven.”
+301. “Leadership starts with example.”
+302. “Discipline creates freedom.”
+303. “A leader stays calm under pressure.”
+304. “Respect is earned through actions.”
+305. “Consistency builds trust.”
+306. “Strong leaders listen carefully.”
+307. “Discipline beats motivation.”
+308. “Responsibility builds character.”
+309. “A clear plan reduces chaos.”
+310. “Leadership is service.”
+311. “Control what you can control.”
+312. “Calm minds make better decisions.”
+313. “Integrity matters when nobody is watching.”
+314. “Preparation prevents panic.”
+315. “Good leaders create stability.”
+316. “Accountability creates growth.”
+317. “The standard you walk past becomes the standard you accept.”
+318. “Respect is built daily.”
+319. “Discipline creates momentum.”
+320. “Strong habits shape strong people.”
+321. “Leaders solve problems.”
+322. “Pressure reveals character.”
+323. “Structure creates progress.”
+324. “The details matter.”
+325. “Leadership requires patience.”
+326. “A calm response is powerful.”
+327. “Good systems reduce stress.”
+328. “Success requires responsibility.”
+329. “Leaders build others up.”
+330. “Stay composed.”
+331. “Consistency earns credibility.”
+332. “Discipline compounds over time.”
+333. “Clear communication prevents confusion.”
+334. “Strong people take ownership.”
+335. “Focus creates results.”
+336. “A leader stays steady during storms.”
+337. “Character is revealed under pressure.”
+338. “Respect is more valuable than fear.”
+339. “Discipline creates opportunities.”
+340. “Strong routines build strong lives.”
+341. “Leadership is influence.”
+342. “Stay organised.”
+343. “Good decisions require clarity.”
+344. “Preparation creates confidence.”
+345. “Small disciplines become big victories.”
+346. “Leaders remain solution-focused.”
+347. “Consistency wins over time.”
+348. “Discipline is self-respect in action.”
+349. “Stay reliable.”
+350. “Strong foundations matter.”
+351. “Adventure begins with curiosity.”
+352. “The world is bigger than your worries.”
+353. “Travel changes perspective.”
+354. “Memories are worth more than possessions.”
+355. “Time moves quickly.”
+356. “Life rewards brave choices.”
+357. “Every journey changes you.”
+358. “Explore often.”
+359. “The best stories come from taking chances.”
+360. “Experience life fully.”
+361. “New places create new ideas.”
+362. “Time is your most valuable asset.”
+363. “The present moment matters.”
+364. “Adventure keeps the spirit alive.”
+365. “Perspective changes everything.”
+366. “Take the scenic route sometimes.”
+367. “Life becomes richer through experiences.”
+368. “Every place has a story.”
+369. “Curiosity keeps life interesting.”
+370. “Explore beyond comfort.”
+371. “The unknown creates growth.”
+372. “Time cannot be replaced.”
+373. “Moments pass quickly.”
+374. “Life is an adventure worth living.”
+375. “See more, learn more.”
+376. “The best adventures begin unexpectedly.”
+377. “Travel teaches humility.”
+378. “Every chapter deserves appreciation.”
+379. “Your story is unique.”
+380. “Memories become treasures.”
+381. “Life feels longer when you experience more.”
+382. “Adventure starts with a decision.”
+383. “Time spent with good people is never wasted.”
+384. “A fresh perspective can change your life.”
+385. “Explore your own potential.”
+386. “Life should contain stories worth telling.”
+387. “Nature restores perspective.”
+388. “The best moments are often unplanned.”
+389. “Every day offers possibility.”
+390. “Experience creates wisdom.”
+391. “Time reveals what matters.”
+392. “Adventure and fear often travel together.”
+393. “The future arrives faster than expected.”
+394. “Create memories intentionally.”
+395. “Life expands through experience.”
+396. “See the world with curiosity.”
+397. “Good moments deserve appreciation.”
+398. “Time changes everything.”
+399. “Adventure creates growth.”
+400. “Live a story worth remembering.”
+401. “Protect your peace at all costs.”
+402. “Be patient with your progress.”
+403. “Small actions create massive change.”
+404. “Your habits decide your future.”
+405. “Growth requires discomfort.”
+406. “Keep your standards high.”
+407. “A focused mind is powerful.”
+408. “Life rewards consistency.”
+409. “Every day is another opportunity.”
+410. “You are capable of rebuilding.”
+411. “Strength is built quietly.”
+412. “Stay calm and keep moving.”
+413. “Your energy matters.”
+414. “Discipline creates confidence.”
+415. “Protect your mental space.”
+416. “The strongest people keep going.”
+417. “A peaceful life is a successful life.”
+418. “You don’t need to rush.”
+419. “Trust your ability to adapt.”
+420. “The best investment is your growth.”
+421. “Learn from everything.”
+422. “Hard times teach valuable lessons.”
+423. “You are stronger than your fears.”
+424. “Stay loyal to your goals.”
+425. “A calm response is strength.”
+426. “Clarity changes decisions.”
+427. “Peace is priceless.”
+428. “Every setback teaches something.”
+429. “You control your next move.”
+430. “Keep building.”
+431. “Success comes from persistence.”
+432. “You don’t have to prove yourself to everyone.”
+433. “Protect what matters most.”
+434. “Focus on progress.”
+435. “Your future is shaped today.”
+436. “Strength grows slowly.”
+437. “Stay curious.”
+438. “Good things take time.”
+439. “Never stop learning.”
+440. “A strong routine changes lives.”
+441. “You are capable of more.”
+442. “Consistency compounds.”
+443. “Patience creates stability.”
+444. “Momentum matters.”
+445. “The right mindset changes outcomes.”
+446. “Choose growth daily.”
+447. “Protect your confidence.”
+448. “Keep evolving.”
+449. “Your story still has chapters left.”
+450. “Resilience is a quiet power.”
+451. “Strong people stay steady.”
+452. “Focus creates clarity.”
+453. “Peace is strength.”
+454. “You can always begin again.”
+455. “Every step counts.”
+456. “Life rewards persistence.”
+457. “Healing requires patience.”
+458. “Build a life that feels right.”
+459. “Your standards shape your reality.”
+460. “Success requires sacrifice.”
+461. “Confidence comes through repetition.”
+462. “A strong mind changes everything.”
+463. “Growth begins with honesty.”
+464. “Protect your future self.”
+465. “Stay focused on what matters.”
+466. “Simple routines create powerful results.”
+467. “Hard work builds confidence.”
+468. “Your peace is valuable.”
+469. “Keep your promises to yourself.”
+470. “Every challenge carries growth.”
+471. “You become what you repeat.”
+472. “Stay disciplined.”
+473. “Strength is built through endurance.”
+474. “Your effort matters.”
+475. “Learn to enjoy the process.”
+476. “Time rewards consistency.”
+477. “Keep moving forward.”
+478. “Your mindset is everything.”
+479. “A better future starts now.”
+480. “Protect your energy carefully.”
+481. “Life becomes what you focus on.”
+482. “Stay patient with yourself.”
+483. “Strong habits create strong lives.”
+484. “Keep learning and adapting.”
+485. “You already survived difficult days.”
+486. “Peace comes from within.”
+487. “Success begins with discipline.”
+488. “Your actions create your future.”
+489. “Progress matters more than speed.”
+490. “Stay grounded.”
+491. “Keep building your future.”
+492. “The strongest growth happens quietly.”
+493. “A focused life is a powerful life.”
+494. “Protect your vision.”
+495. “Resilience changes lives.”
+496. “Every sunrise is another chance.”
+497. “Keep believing in yourself.”
+498. “Your future deserves effort.”
+499. “Stay steady under pressure.”
+500. “Raise first, die last.”
+`;
+
+const quotes = quotesText
+  .trim()
+  .split(String.fromCharCode(10))
+  .filter(function(line){ return !isNaN(parseInt(line)); })
+  .map(function(line){ return line.slice(line.indexOf(".") + 1).trim(); });
+
+const quoteStartDate = new Date("2026-01-01");
+const todayDateOnly = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+const quoteDayNumber = Math.floor((todayDateOnly - quoteStartDate) / 86400000);
+const todaysQuote = quotes[((quoteDayNumber % quotes.length) + quotes.length) % quotes.length];
+
 // 🔘 BUILD BUTTONS
 function create(section, items){
   let html = `<h3>${section}</h3>`;
@@ -313,7 +844,7 @@ This app stops you wrecking your face.
 
 <div class="quoteBox" id="quoteBox" style="display:none;">
   <div class="quoteText">
-    "Raise first, die last"
+    ${todaysQuote}
   </div>
 </div>
 
@@ -422,3 +953,65 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+```
+
+```json
+// manifest.json
+{
+  "name": "My Routine",
+  "short_name": "Routine",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#0f0f0f",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2922/2922510.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+```javascript
+// service-worker.js
+const CACHE_NAME = "routine-app-v1";
+const FILES_TO_CACHE = [
+  "./",
+  "./index.html",
+  "./manifest.json"
+];
+
+self.addEventListener("install", function(event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function(cache) {
+      return cache.addAll(FILES_TO_CACHE);
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.map(function(key) {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", function(event) {
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+      return response || fetch(event.request);
+    })
+  );
+});
+```

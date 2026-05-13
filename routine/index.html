@@ -1,4 +1,5 @@
-
+```html
+<!-- index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,6 +10,7 @@
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2922/2922510.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f0f0f">
+
 <style>
 body {
   font-family: -apple-system, Arial;
@@ -57,6 +59,56 @@ h1 {
   font-size:18px;
   font-weight:600;
   line-height:1.4;
+}
+
+.waterTracker {
+  background:#151515;
+  border:1px solid #2a2a2a;
+  border-radius:14px;
+  padding:14px;
+  margin:0 0 20px;
+  text-align:center;
+}
+
+.waterTitle {
+  color:#666;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:10px;
+}
+
+.waterBottles {
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+
+.waterBottle {
+  width:60px;
+  height:70px;
+  border-radius:14px;
+  background:#1f6feb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  border:1px solid #3b82f6;
+  box-shadow:0 0 10px rgba(59,130,246,0.35);
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.waterBottle:active {
+  transform:scale(0.95);
+}
+
+.waterBottle.doneWater {
+  background:#333;
+  border-color:#444;
+  box-shadow:none;
+  opacity:0.55;
+  text-decoration:line-through;
 }
 
 button {
@@ -186,22 +238,22 @@ if (localStorage.getItem("routineUnlocked") === "1") {
 const info = {
 
 "Cleanser":
-"🧼 CeraVe Foaming Cleanser<br><br><b>How:</b> Massage 30–60 sec, rinse<br><b>When:</b> Morning + Night",
+"🧼 Cleanser<br><br><b>How:</b> Massage 30–60 sec, rinse<br><b>When:</b> Morning + Night",
 
 "Moisturiser":
-"💧 CeraVe Moisturising Lotion<br><br><b>How:</b> Apply after products<br><b>When:</b> Morning + Night",
+"💧 Moisturiser<br><br><b>How:</b> Apply after products<br><b>When:</b> Morning + Night",
 
 "SPF":
 "☀️ SPF 50<br><br><b>How:</b> Last step every morning<br><b>When:</b> Daily<br><br>⚠️ Essential with retinol",
 
 "Vitamin C":
-"🍊 L’Oréal Vitamin C Serum<br><br><b>How:</b> Small amount<br><b>When:</b> Morning<br><br>⚠️ Start every other day<br>⚠️ Contains salicylic acid",
+"🍊 Vitamin C<br><br><b>How:</b> Small amount<br><b>When:</b> Morning<br><br>⚠️ Start every other day<br>⚠️ Use SPF after",
 
 "Retinol":
-"🌙 CeraVe Retinol Serum<br><br><b>How:</b> Pea-sized<br><b>When:</b> Night (2–3x week)<br><br>⚠️ SPF 50 is essential tomorrow<br>⚠️ Do NOT use with tan",
+"🌙 Retinol<br><br><b>How:</b> Pea-sized amount<br><b>When:</b> Night (2–3x week)<br><br>⚠️ SPF 50 is essential tomorrow<br>⚠️ Do NOT use with tan",
 
 "Tan":
-"🟤 Bondi Sands Tan<br><br><b>How:</b> Small amount<br><b>When:</b> Night (2–3x week)<br><br>⚠️ Use on non-retinol nights"
+"🟤 Tan<br><br><b>How:</b> Small amount<br><b>When:</b> Night (2–3x week)<br><br>⚠️ Use on non-retinol nights"
 };
 
 // 📅 WEEK PLAN
@@ -229,7 +281,7 @@ function create(section, items){
     const key = day.name + section + i;
     const isDone = localStorage.getItem(key) === "1";
 
-    html += `<button class="${isDone ? 'done' : ''}"
+    html += `<button class="${isDone ? 'done' : ''}" 
       onclick="tap(this,'${key}','${item}')">
       ${item}
     </button>`;
@@ -246,6 +298,15 @@ Men don’t read instructions.<br>
 This app stops you wrecking your face.
 </p>
 
+<div class="waterTracker">
+  <div class="waterTitle">Water Intake</div>
+  <div class="waterBottles">
+    <div class="waterBottle" id="water0" onclick="toggleWater(0)">💧</div>
+    <div class="waterBottle" id="water1" onclick="toggleWater(1)">💧</div>
+    <div class="waterBottle" id="water2" onclick="toggleWater(2)">💧</div>
+  </div>
+</div>
+
 <button onclick="toggleQuote()" id="quoteButton">
   Quote of the Day
 </button>
@@ -258,7 +319,56 @@ This app stops you wrecking your face.
 
 ${create("AM", day.am)}
 ${create("PM", day.pm)}
+
+<button onclick="toggleRetinolRoutine()" id="retinolButton">
+  Retinol Routine
+</button>
+
+<div class="quoteBox" id="retinolBox" style="display:none; margin-top:10px;">
+  <div class="quoteTitle">Retinol Guidance</div>
+  <div class="quoteText" style="font-size:15px; font-weight:400; text-align:left; line-height:1.7;">
+    🌙 Night only<br>
+    📅 Start 2–3 nights weekly<br>
+    ⚪ Pea-sized amount only<br>
+    💧 Moisturiser after use<br>
+    ☀️ SPF 50 required next morning<br><br>
+
+    ⚠️ Avoid combining with:<br>
+    - Tan<br>
+    - Exfoliants<br>
+    - Strong acids<br><br>
+
+    Beginner Pattern:<br>
+    Monday — Retinol<br>
+    Thursday — Retinol<br>
+    Sunday — Optional
+  </div>
+</div>
 `;
+
+// 💧 WATER TRACKER
+function loadWater(){
+  for(let i = 0; i < 3; i++){
+    const key = day.name + "Water" + i;
+    const bottle = document.getElementById("water" + i);
+
+    if(localStorage.getItem(key) === "1"){
+      bottle.classList.add("doneWater");
+      bottle.innerText = "✓";
+    }
+  }
+}
+
+function toggleWater(i){
+  const key = day.name + "Water" + i;
+  const bottle = document.getElementById("water" + i);
+  const done = bottle.classList.toggle("doneWater");
+
+  localStorage.setItem(key, done ? "1" : "0");
+  bottle.innerText = done ? "✓" : "💧";
+}
+
+loadWater();
 
 // ✅ TAP FUNCTION
 function tap(el,key,item){
@@ -284,6 +394,17 @@ function toggleQuote(){
     box.style.display = "none";
   }
 }
+
+function toggleRetinolRoutine(){
+  const box = document.getElementById("retinolBox");
+
+  if(box.style.display === "none"){
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+  }
+}
+
 // 📡 OFFLINE MODE / PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
@@ -296,7 +417,70 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+
 </script>
 
 </body>
 </html>
+```
+
+```json
+// manifest.json
+{
+  "name": "My Routine",
+  "short_name": "Routine",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#0f0f0f",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2922/2922510.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+```javascript
+// service-worker.js
+const CACHE_NAME = "routine-app-v1";
+const FILES_TO_CACHE = [
+  "./",
+  "./index.html",
+  "./manifest.json"
+];
+
+self.addEventListener("install", function(event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function(cache) {
+      return cache.addAll(FILES_TO_CACHE);
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.map(function(key) {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", function(event) {
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+      return response || fetch(event.request);
+    })
+  );
+});
+```

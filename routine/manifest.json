@@ -1,0 +1,15 @@
+{
+  "name": "My Routine",
+  "short_name": "Routine",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#0f0f0f",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2922/2922510.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

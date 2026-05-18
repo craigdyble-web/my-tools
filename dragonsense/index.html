@@ -8,35 +8,48 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#000;color:white;overflow:hidden;height:100vh}
-.app{position:relative;height:100vh;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.7)),url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1400&auto=format&fit=crop') center/cover no-repeat;overflow:hidden}
-.dragonShadow{position:absolute;top:120px;left:50%;transform:translateX(-50%);width:420px;opacity:.16;filter:blur(.5px);z-index:1}
+.app{position:relative;height:100vh;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.75)),url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1400&auto=format&fit=crop') center/cover no-repeat;overflow:hidden}
+.dragonShadow{position:absolute;top:115px;left:50%;transform:translateX(-50%);width:420px;opacity:.16;filter:blur(.5px);z-index:1}
 .top{position:relative;z-index:3;display:flex;justify-content:space-between;padding:25px;font-size:14px;letter-spacing:3px}
 .center{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;padding:20px;margin-top:10px}
-.logo{font-size:60px;line-height:.95;letter-spacing:10px;text-align:center;font-weight:200}
-.sub{margin-top:20px;font-size:14px;letter-spacing:4px;color:#67ff8f;text-shadow:0 0 12px #00ff66}
-.radar{position:relative;width:250px;height:250px;margin:32px 0;border-radius:50%;border:1px solid rgba(0,255,100,.25);overflow:hidden;box-shadow:0 0 45px rgba(0,255,100,.15)}
+.logo{font-size:58px;line-height:.95;letter-spacing:10px;text-align:center;font-weight:200}
+.sub{margin-top:20px;font-size:14px;letter-spacing:4px;color:#67ff8f;text-shadow:0 0 12px #00ff66;text-align:center}
+.radar{position:relative;width:245px;height:245px;margin:32px 0;border-radius:50%;border:1px solid rgba(0,255,100,.25);overflow:hidden;box-shadow:0 0 45px rgba(0,255,100,.15)}
 .radar:before{content:"";position:absolute;inset:0;border-radius:50%;background:repeating-radial-gradient(circle,rgba(0,255,100,.16) 0px,rgba(0,255,100,.02) 2px,transparent 38px)}
 .radar:after{content:"";position:absolute;width:50%;height:50%;background:linear-gradient(90deg,rgba(0,255,100,0),rgba(0,255,100,.5));left:50%;top:50%;transform-origin:left top;animation:sweep 3s linear infinite}
 @keyframes sweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .status{font-size:14px;letter-spacing:5px;color:#67ff8f;margin-bottom:18px;text-shadow:0 0 12px #00ff66}
-.message{font-size:38px;text-align:center;letter-spacing:4px;line-height:1.15}
+.message{font-size:36px;text-align:center;letter-spacing:4px;line-height:1.15}
 .small{margin-top:18px;opacity:.8;font-size:14px;letter-spacing:2px;text-align:center}
-.activate{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:5;width:86%;max-width:420px;padding:22px;border-radius:20px;border:1px solid rgba(0,255,100,.35);background:rgba(0,0,0,.75);color:#67ff8f;font-size:23px;letter-spacing:4px;box-shadow:0 0 25px rgba(0,255,100,.25)}
+.activate{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:5;width:86%;max-width:420px;padding:22px;border-radius:20px;border:1px solid rgba(0,255,100,.35);background:rgba(0,0,0,.75);color:#67ff8f;font-size:21px;letter-spacing:3px;box-shadow:0 0 25px rgba(0,255,100,.25)}
 .activate:active{transform:translateX(-50%) scale(.96)}
 .bottom{position:fixed;bottom:0;left:0;right:0;height:90px;background:rgba(0,0,0,.94);display:grid;grid-template-columns:repeat(4,1fr);z-index:10;border-top:1px solid rgba(0,255,100,.12)}
 .nav{display:flex;justify-content:center;align-items:center;font-size:11px;letter-spacing:2px;color:#67ff8f;opacity:.85;text-align:center}
-.reveal{position:fixed;inset:0;background:radial-gradient(circle at center,rgba(0,255,120,.18),rgba(0,0,0,.96) 55%),#001108;z-index:999;display:none;justify-content:center;align-items:center;flex-direction:column;overflow:hidden;padding:30px;text-align:center}
+
+.cameraScreen,.reveal,.vault{position:fixed;inset:0;background:#020402;z-index:999;display:none}
+.cameraScreen{flex-direction:column}
+video{width:100%;height:100%;object-fit:cover}
+.cameraOverlay{position:absolute;inset:0;background:radial-gradient(circle at center,transparent 25%,rgba(0,0,0,.75) 72%);pointer-events:none}
+.scanFrame{position:absolute;top:19%;left:8%;right:8%;height:48%;border:2px solid rgba(0,255,100,.55);border-radius:22px;box-shadow:0 0 30px rgba(0,255,100,.25)}
+.scanFrame:after{content:"";position:absolute;left:0;right:0;height:3px;background:#67ff8f;box-shadow:0 0 18px #00ff66;animation:lineScan 1.8s infinite}
+@keyframes lineScan{0%{top:8%}50%{top:88%}100%{top:8%}}
+.cameraText{position:absolute;top:8%;left:0;right:0;text-align:center;color:#67ff8f;letter-spacing:4px;text-shadow:0 0 14px #00ff66;font-size:15px}
+.captureBtn{position:absolute;bottom:115px;left:50%;transform:translateX(-50%);width:84%;max-width:420px;padding:22px;border-radius:20px;border:1px solid rgba(0,255,100,.45);background:rgba(0,0,0,.78);color:#67ff8f;font-size:20px;letter-spacing:3px;box-shadow:0 0 28px rgba(0,255,100,.25)}
+.cancelBtn{position:absolute;top:20px;right:20px;padding:12px 15px;border:none;border-radius:12px;background:#67ff8f;color:#000;font-weight:bold}
+
+.reveal{justify-content:center;align-items:center;flex-direction:column;overflow:hidden;padding:30px;text-align:center;background:radial-gradient(circle at center,rgba(0,255,120,.18),rgba(0,0,0,.96) 55%),#001108}
 .reveal:before{content:"";position:absolute;width:320px;height:320px;border-radius:50%;border:2px solid rgba(0,255,100,.4);animation:pulse 1.5s infinite}
 @keyframes pulse{0%{transform:scale(.7);opacity:1}100%{transform:scale(2);opacity:0}}
-.scan{position:relative;z-index:2;font-size:25px;letter-spacing:5px;color:#67ff8f;text-shadow:0 0 18px #00ff66;animation:blink 1s infinite}
+.scan{position:relative;z-index:2;font-size:24px;letter-spacing:5px;color:#67ff8f;text-shadow:0 0 18px #00ff66;animation:blink 1s infinite;text-align:center}
 @keyframes blink{50%{opacity:.45}}
+.photoPreview{position:relative;z-index:2;width:80%;max-width:340px;border-radius:22px;margin-bottom:25px;border:1px solid rgba(0,255,100,.35);box-shadow:0 0 30px rgba(0,255,100,.2)}
 .dragonCard{position:relative;z-index:2;background:rgba(0,0,0,.65);border:1px solid rgba(0,255,100,.25);border-radius:24px;padding:25px;width:90%;max-width:360px;box-shadow:0 0 30px rgba(0,255,100,.15)}
 .dragonImage{width:100%;border-radius:18px;margin-bottom:20px}
-.dragonName{font-size:36px;letter-spacing:4px;margin-bottom:12px}
+.dragonName{font-size:34px;letter-spacing:4px;margin-bottom:12px}
 .rarity{font-size:20px;letter-spacing:4px}
 .common{color:#ccc}.rare{color:#4fc3f7}.epic{color:#c77dff}.legendary{color:gold}
 .tap{margin-top:24px;opacity:.7;letter-spacing:3px}
-.vault{position:fixed;inset:0;background:#040404;z-index:998;display:none;overflow:auto;padding:30px}
+.vault{background:#040404;z-index:998;overflow:auto;padding:30px}
 .vault h1{margin-bottom:30px;letter-spacing:4px}
 .card{background:#101010;padding:20px;border-radius:18px;margin-bottom:16px;border:1px solid rgba(0,255,100,.08)}
 .close{position:fixed;top:20px;right:20px;padding:12px 15px;border:none;border-radius:12px;background:#67ff8f;color:black;font-weight:bold;z-index:999}
@@ -59,10 +72,10 @@ body{background:#000;color:white;overflow:hidden;height:100vh}
 <div class="radar"></div>
 <div class="status">SIGNAL UNSTABLE</div>
 <div class="message">THE VEIL IS THIN HERE</div>
-<div class="small">No nearby resonance detected.</div>
+<div class="small">Scan real objects to reveal hidden dragons.</div>
 </div>
 
-<button class="activate" onclick="huntDragon()">ACTIVATE SENSE</button>
+<button class="activate" onclick="openCamera()">ACTIVATE SENSE</button>
 
 <div class="bottom">
 <div class="nav">SENSE</div>
@@ -71,6 +84,17 @@ body{background:#000;color:white;overflow:hidden;height:100vh}
 <div class="nav">ARCHIVE</div>
 </div>
 </div>
+
+<div class="cameraScreen" id="cameraScreen">
+<video id="camera" autoplay playsinline></video>
+<div class="cameraOverlay"></div>
+<div class="cameraText">POINT AT AN OBJECT</div>
+<div class="scanFrame"></div>
+<button class="cancelBtn" onclick="closeCamera()">X</button>
+<button class="captureBtn" onclick="captureObject()">CAPTURE OBJECT</button>
+</div>
+
+<canvas id="canvas" style="display:none;"></canvas>
 
 <div class="reveal" id="reveal">
 <div class="scan" id="scanText">SCANNING REALITY...</div>
@@ -84,6 +108,8 @@ body{background:#000;color:white;overflow:hidden;height:100vh}
 
 <script>
 let audioCtx;
+let stream;
+let capturedPhoto="";
 
 function unlockAudio(){
   if(!audioCtx){
@@ -127,56 +153,136 @@ function revealSound(rarity){
 }
 
 const dragons=[
-{name:"EMBERCLAW",rarity:"COMMON",image:"https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?q=80&w=1200&auto=format&fit=crop"},
-{name:"FROSTFANG",rarity:"RARE",image:"https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=1200&auto=format&fit=crop"},
-{name:"VOIDSERPENT",rarity:"EPIC",image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"},
-{name:"THE ANCIENT",rarity:"LEGENDARY",image:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1200&auto=format&fit=crop"}
+{name:"EMBERCLAW",rarity:"COMMON",type:"HEAT OBJECT",image:"https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?q=80&w=1200&auto=format&fit=crop"},
+{name:"FROSTFANG",rarity:"RARE",type:"COLD SIGNAL",image:"https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=1200&auto=format&fit=crop"},
+{name:"VOIDSERPENT",rarity:"EPIC",type:"UNKNOWN OBJECT",image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"},
+{name:"THE ANCIENT",rarity:"LEGENDARY",type:"ANCIENT RESONANCE",image:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1200&auto=format&fit=crop"}
 ];
 
-function huntDragon(){
+async function openCamera(){
   unlockAudio();
 
+  const cameraScreen=document.getElementById("cameraScreen");
+  const video=document.getElementById("camera");
+
+  cameraScreen.style.display="flex";
+
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:"environment"}},
+      audio:false
+    });
+
+    video.srcObject=stream;
+
+  }catch(err){
+    cameraScreen.style.display="none";
+    alert("Camera blocked. Open the live GitHub Pages link in Safari/Chrome and allow camera access.");
+  }
+}
+
+function closeCamera(){
+  const cameraScreen=document.getElementById("cameraScreen");
+  cameraScreen.style.display="none";
+
+  if(stream){
+    stream.getTracks().forEach(track=>track.stop());
+  }
+}
+
+function captureObject(){
+  unlockAudio();
+
+  const video=document.getElementById("camera");
+  const canvas=document.getElementById("canvas");
+
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+
+  const ctx=canvas.getContext("2d");
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+  capturedPhoto=canvas.toDataURL("image/jpeg",0.8);
+
+  closeCamera();
+  analyseObject();
+}
+
+function analyseObject(){
   const reveal=document.getElementById("reveal");
+
   reveal.style.display="flex";
-  reveal.innerHTML='<div class="scan" id="scanText">SCANNING REALITY...</div>';
+  reveal.innerHTML=`
+    <img class="photoPreview" src="${capturedPhoto}">
+    <div class="scan" id="scanText">ANALYSING OBJECT...</div>
+  `;
 
   scannerSound();
 
   setTimeout(()=>{
-    document.getElementById("scanText").innerHTML="SIGNAL LOCKED";
-  },1800);
+    document.getElementById("scanText").innerHTML="CHECKING RESONANCE...";
+  },1500);
 
   setTimeout(()=>{
-    const dragon=dragons[Math.floor(Math.random()*dragons.length)];
-    revealSound(dragon.rarity);
-    saveDragon(dragon);
+    document.getElementById("scanText").innerHTML="SIGNAL LOCKED";
+  },3000);
 
-    const rarityClass=dragon.rarity.toLowerCase();
+  setTimeout(()=>{
+    revealDragon();
+  },4300);
+}
 
-    reveal.innerHTML=`
-      <div class="dragonCard">
-        <img class="dragonImage" src="${dragon.image}">
-        <div class="dragonName">${dragon.name}</div>
-        <div class="rarity ${rarityClass}">${dragon.rarity}</div>
-        <div class="tap">TAP ANYWHERE TO CONTINUE</div>
-      </div>
-    `;
+function revealDragon(){
+  const reveal=document.getElementById("reveal");
 
-    reveal.onclick=()=>{
-      reveal.style.display="none";
-    };
-  },4000);
+  const chance=Math.random();
+  let dragon;
+
+  if(chance > .96){
+    dragon=dragons[3];
+  }else if(chance > .82){
+    dragon=dragons[2];
+  }else if(chance > .55){
+    dragon=dragons[1];
+  }else{
+    dragon=dragons[0];
+  }
+
+  revealSound(dragon.rarity);
+  saveDragon(dragon);
+
+  const rarityClass=dragon.rarity.toLowerCase();
+
+  reveal.innerHTML=`
+    <div class="dragonCard">
+      <img class="dragonImage" src="${dragon.image}">
+      <div class="dragonName">${dragon.name}</div>
+      <div class="rarity ${rarityClass}">${dragon.rarity}</div>
+      <div class="tap">${dragon.type}</div>
+      <div class="tap">TAP ANYWHERE TO CONTINUE</div>
+    </div>
+  `;
+
+  reveal.onclick=()=>{
+    reveal.style.display="none";
+  };
 }
 
 function saveDragon(dragon){
   let vault=JSON.parse(localStorage.getItem("dragons")) || [];
-  vault.push(dragon);
+  vault.push({
+    name:dragon.name,
+    rarity:dragon.rarity,
+    type:dragon.type,
+    date:new Date().toLocaleDateString()
+  });
   localStorage.setItem("dragons",JSON.stringify(vault));
 }
 
 function openVault(){
   const vault=document.getElementById("vault");
   const content=document.getElementById("vaultContent");
+
   vault.style.display="block";
 
   let dragonsSaved=JSON.parse(localStorage.getItem("dragons")) || [];
@@ -187,11 +293,13 @@ function openVault(){
   }
 
   content.innerHTML="";
-  dragonsSaved.forEach(dragon=>{
+  dragonsSaved.slice().reverse().forEach(dragon=>{
     content.innerHTML+=`
       <div class="card">
         <h2>${dragon.name}</h2>
         <p>${dragon.rarity}</p>
+        <p>${dragon.type || "UNKNOWN RESONANCE"}</p>
+        <p>${dragon.date || ""}</p>
       </div>
     `;
   });

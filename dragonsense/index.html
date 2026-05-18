@@ -1,145 +1,16 @@
-<script>
-
-let audioCtx;
-
-function unlockAudio(){
+function huntDragon(){
 
 if(!audioCtx){
 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
-
-if(audioCtx.state === "suspended"){
 audioCtx.resume();
 }
-
-}
-
-function beep(freq = 440, duration = 0.25, volume = 0.35){
-
-unlockAudio();
-
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-
-osc.type = "square";
-
-osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-
-gain.gain.exponentialRampToValueAtTime(
-0.001,
-audioCtx.currentTime + duration
-);
-
-osc.connect(gain);
-
-gain.connect(audioCtx.destination);
-
-osc.start(audioCtx.currentTime);
-
-osc.stop(audioCtx.currentTime + duration);
-
-}
-
-function scannerSound(){
-
-beep(220,0.18,0.35);
-
-setTimeout(()=>{
-
-beep(330,0.18,0.35);
-
-},300);
-
-setTimeout(()=>{
-
-beep(440,0.18,0.35);
-
-},600);
-
-setTimeout(()=>{
-
-beep(600,0.3,0.4);
-
-},1000);
-
-if(navigator.vibrate){
-navigator.vibrate([80,80,120]);
-}
-
-}
-
-function revealSound(rarity){
-
-if(rarity === "LEGENDARY"){
-
-beep(180,0.25,0.45);
-
-setTimeout(()=>{
-
-beep(440,0.3,0.45);
-
-},220);
-
-setTimeout(()=>{
-
-beep(880,0.45,0.5);
-
-},520);
-
-}else{
-
-beep(440,0.25,0.4);
-
-setTimeout(()=>{
-
-beep(660,0.3,0.4);
-
-},250);
-
-}
-
-}
-
-const dragons = [
-
-{
-name:"EMBERCLAW",
-rarity:"COMMON",
-image:"https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?q=80&w=1200&auto=format&fit=crop"
-},
-
-{
-name:"FROSTFANG",
-rarity:"RARE",
-image:"https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=1200&auto=format&fit=crop"
-},
-
-{
-name:"VOIDSERPENT",
-rarity:"EPIC",
-image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"
-},
-
-{
-name:"THE ANCIENT",
-rarity:"LEGENDARY",
-image:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1200&auto=format&fit=crop"
-}
-
-];
-
-function huntDragon(){
-
-unlockAudio();
-
-scannerSound();
 
 const reveal=document.getElementById("reveal");
 const scan=document.getElementById("scanText");
 
 reveal.style.display="flex";
+
+scannerSound();
 
 scan.innerHTML="SCANNING REALITY...";
 
@@ -196,56 +67,3 @@ SCANNING REALITY...
 },4000);
 
 }
-
-function saveDragon(dragon){
-
-let vault=JSON.parse(localStorage.getItem("dragons")) || [];
-
-vault.push(dragon);
-
-localStorage.setItem("dragons",JSON.stringify(vault));
-
-}
-
-function openVault(){
-
-const vault=document.getElementById("vault");
-
-vault.style.display="block";
-
-const content=document.getElementById("vaultContent");
-
-let dragonsSaved=JSON.parse(localStorage.getItem("dragons")) || [];
-
-if(dragonsSaved.length===0){
-
-content.innerHTML="<p>No dragons discovered yet.</p>";
-
-return;
-
-}
-
-content.innerHTML="";
-
-dragonsSaved.forEach(dragon=>{
-
-content.innerHTML+=`
-
-<div class="card">
-<h2>${dragon.name}</h2>
-<p>${dragon.rarity}</p>
-</div>
-
-`;
-
-});
-
-}
-
-function closeVault(){
-
-document.getElementById("vault").style.display="none";
-
-}
-
-</script>

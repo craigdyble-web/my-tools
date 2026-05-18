@@ -16,15 +16,14 @@ font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
-height:100vh;
-overflow:hidden;
-background:#000;
+background:black;
 color:white;
+overflow:hidden;
+height:100vh;
 }
 
 .app{
 position:relative;
-width:100%;
 height:100vh;
 background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop') center center/cover no-repeat;
 display:flex;
@@ -36,33 +35,17 @@ justify-content:space-between;
 position:absolute;
 inset:0;
 background:rgba(0,0,0,0.55);
-backdrop-filter:blur(1px);
+backdrop-filter:blur(2px);
 }
 
 .top{
 position:relative;
 z-index:2;
-padding:30px 25px;
 display:flex;
 justify-content:space-between;
-align-items:flex-start;
-}
-
-.logo{
-font-size:52px;
-letter-spacing:10px;
-font-weight:200;
-margin-top:60px;
-text-align:center;
-width:100%;
-}
-
-.sub{
-text-align:center;
-opacity:0.7;
-letter-spacing:4px;
-margin-top:10px;
+padding:25px;
 font-size:14px;
+letter-spacing:3px;
 }
 
 .center{
@@ -71,137 +54,200 @@ z-index:2;
 display:flex;
 flex-direction:column;
 align-items:center;
-gap:25px;
-margin-top:-60px;
+padding:20px;
+margin-top:20px;
 }
 
-.signal{
+.logo{
+font-size:60px;
+text-align:center;
+letter-spacing:10px;
+font-weight:200;
+line-height:1.1;
+}
+
+.sub{
+margin-top:20px;
+opacity:0.7;
+letter-spacing:4px;
+font-size:13px;
+text-align:center;
+}
+
+.radar{
 width:240px;
 height:240px;
 border-radius:50%;
 border:1px solid rgba(255,255,255,0.1);
-display:flex;
-justify-content:center;
-align-items:center;
+margin:40px 0;
 position:relative;
 animation:pulse 2s infinite;
 }
 
-.signal::before,
-.signal::after{
+.radar::before,
+.radar::after{
 content:'';
 position:absolute;
+inset:30px;
 border-radius:50%;
 border:1px solid rgba(255,255,255,0.08);
 }
 
-.signal::before{
-width:170px;
-height:170px;
-}
-
-.signal::after{
-width:90px;
-height:90px;
+.radar::after{
+inset:70px;
 }
 
 @keyframes pulse{
 0%{transform:scale(1);}
-50%{transform:scale(1.05);}
+50%{transform:scale(1.04);}
 100%{transform:scale(1);}
 }
 
 .status{
+font-size:14px;
 letter-spacing:4px;
-font-size:13px;
 opacity:0.7;
+margin-bottom:20px;
 }
 
 .message{
-font-size:28px;
-letter-spacing:3px;
+font-size:42px;
 text-align:center;
-padding:0 30px;
+letter-spacing:5px;
+line-height:1.2;
 }
 
 .small{
+margin-top:20px;
 opacity:0.7;
-font-size:14px;
 letter-spacing:2px;
+font-size:14px;
+text-align:center;
 }
 
-.btn{
-margin-top:20px;
-padding:22px 60px;
-border:1px solid rgba(255,255,255,0.25);
-background:rgba(0,0,0,0.4);
+.activate{
+position:fixed;
+bottom:120px;
+left:50%;
+transform:translateX(-50%);
+z-index:5;
+padding:22px 40px;
+border:none;
+background:rgba(0,0,0,0.7);
+border:1px solid rgba(255,255,255,0.2);
 color:white;
 font-size:22px;
-letter-spacing:5px;
-border-radius:16px;
-backdrop-filter:blur(6px);
-cursor:pointer;
-transition:0.3s;
+letter-spacing:4px;
+border-radius:18px;
+backdrop-filter:blur(10px);
+width:85%;
+max-width:420px;
 }
 
-.btn:active{
-transform:scale(0.95);
+.activate:active{
+transform:translateX(-50%) scale(0.96);
 }
 
 .bottom{
-position:relative;
-z-index:2;
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:85px;
+background:rgba(0,0,0,0.85);
 display:grid;
 grid-template-columns:repeat(4,1fr);
+z-index:10;
 border-top:1px solid rgba(255,255,255,0.08);
-background:rgba(0,0,0,0.55);
 }
 
 .nav{
-padding:18px 10px;
-text-align:center;
+display:flex;
+justify-content:center;
+align-items:center;
 font-size:12px;
 letter-spacing:2px;
-opacity:0.7;
+opacity:0.8;
 }
 
 .reveal{
 position:fixed;
 inset:0;
 background:black;
+z-index:999;
 display:none;
 justify-content:center;
 align-items:center;
 flex-direction:column;
-z-index:999;
-animation:fadein 1s;
-}
-
-@keyframes fadein{
-from{opacity:0;}
-to{opacity:1;}
-}
-
-.dragon{
-font-size:40px;
-margin-bottom:20px;
-}
-
-.rarity{
-font-size:20px;
-letter-spacing:4px;
-margin-bottom:20px;
-color:gold;
+padding:30px;
+text-align:center;
 }
 
 .scan{
-font-size:18px;
-letter-spacing:3px;
+font-size:22px;
+letter-spacing:5px;
 animation:blink 1s infinite;
 }
 
 @keyframes blink{
-50%{opacity:0.3;}
+50%{opacity:0.4;}
+}
+
+.dragon{
+font-size:48px;
+margin-bottom:20px;
+}
+
+.rarity{
+font-size:24px;
+letter-spacing:4px;
+margin-bottom:30px;
+}
+
+.common{color:#bbbbbb;}
+.rare{color:#4fc3f7;}
+.epic{color:#c77dff;}
+.legendary{color:gold;}
+
+.tap{
+opacity:0.7;
+letter-spacing:3px;
+margin-top:20px;
+}
+
+.vault{
+position:fixed;
+inset:0;
+background:#050505;
+z-index:998;
+display:none;
+overflow:auto;
+padding:30px;
+}
+
+.vault h1{
+margin-bottom:30px;
+letter-spacing:4px;
+}
+
+.card{
+background:#111;
+padding:20px;
+border-radius:16px;
+margin-bottom:15px;
+border:1px solid rgba(255,255,255,0.08);
+}
+
+.close{
+position:fixed;
+top:20px;
+right:20px;
+background:white;
+color:black;
+border:none;
+padding:10px 14px;
+border-radius:10px;
+font-weight:bold;
 }
 
 </style>
@@ -220,14 +266,19 @@ animation:blink 1s infinite;
 
 <div class="center">
 
-<div>
-<div class="logo">DRAGON SENSE</div>
-<div class="sub">hidden world. real presence.</div>
+<div class="logo">
+DRAGON<br>SENSE
 </div>
 
-<div class="signal"></div>
+<div class="sub">
+hidden world. real presence.
+</div>
 
-<div class="status">SIGNAL UNSTABLE</div>
+<div class="radar"></div>
+
+<div class="status">
+SIGNAL UNSTABLE
+</div>
 
 <div class="message">
 THE VEIL IS THIN HERE
@@ -237,15 +288,15 @@ THE VEIL IS THIN HERE
 No nearby resonance detected.
 </div>
 
-<button class="btn" onclick="huntDragon()">
+</div>
+
+<button class="activate" onclick="huntDragon()">
 ACTIVATE SENSE
 </button>
 
-</div>
-
 <div class="bottom">
 <div class="nav">SENSE</div>
-<div class="nav">MY DRAGON</div>
+<div class="nav" onclick="openVault()">MY DRAGONS</div>
 <div class="nav">DISCOVERIES</div>
 <div class="nav">ARCHIVE</div>
 </div>
@@ -253,10 +304,20 @@ ACTIVATE SENSE
 </div>
 
 <div class="reveal" id="reveal">
-
 <div class="scan" id="scanText">
 SCANNING...
 </div>
+</div>
+
+<div class="vault" id="vault">
+
+<button class="close" onclick="closeVault()">
+X
+</button>
+
+<h1>MY DRAGONS</h1>
+
+<div id="vaultContent"></div>
 
 </div>
 
@@ -264,46 +325,33 @@ SCANNING...
 
 const dragons = [
 
-{
-name:"EMBERCLAW",
-rarity:"COMMON"
-},
-
-{
-name:"FROSTFANG",
-rarity:"RARE"
-},
-
-{
-name:"VOIDSERPENT",
-rarity:"EPIC"
-},
-
-{
-name:"THE ANCIENT",
-rarity:"LEGENDARY"
-}
+{name:"EMBERCLAW",rarity:"COMMON"},
+{name:"FROSTFANG",rarity:"RARE"},
+{name:"VOIDSERPENT",rarity:"EPIC"},
+{name:"THE ANCIENT",rarity:"LEGENDARY"}
 
 ];
 
 function huntDragon(){
 
-const reveal = document.getElementById("reveal");
-const scanText = document.getElementById("scanText");
+const reveal=document.getElementById("reveal");
+const scan=document.getElementById("scanText");
 
 reveal.style.display="flex";
 
-scanText.innerHTML="SCANNING REALITY...";
+scan.innerHTML="SCANNING REALITY...";
 
 setTimeout(()=>{
 
-scanText.innerHTML="SIGNAL LOCKED";
+scan.innerHTML="SIGNAL LOCKED";
 
-},2000);
+},1500);
 
 setTimeout(()=>{
 
-const dragon = dragons[Math.floor(Math.random()*dragons.length)];
+const dragon=dragons[Math.floor(Math.random()*dragons.length)];
+
+let rarityClass=dragon.rarity.toLowerCase();
 
 reveal.innerHTML=`
 
@@ -311,12 +359,12 @@ reveal.innerHTML=`
 🐉 ${dragon.name}
 </div>
 
-<div class="rarity">
+<div class="rarity ${rarityClass}">
 ${dragon.rarity}
 </div>
 
-<div class="scan">
-TAP TO CONTINUE
+<div class="tap">
+TAP ANYWHERE
 </div>
 
 `;
@@ -335,17 +383,57 @@ SCANNING...
 
 };
 
-},4000);
+},3500);
 
 }
 
 function saveDragon(dragon){
 
-let vault = JSON.parse(localStorage.getItem("dragons")) || [];
+let vault=JSON.parse(localStorage.getItem("dragons")) || [];
 
 vault.push(dragon);
 
 localStorage.setItem("dragons",JSON.stringify(vault));
+
+}
+
+function openVault(){
+
+const vault=document.getElementById("vault");
+
+vault.style.display="block";
+
+const content=document.getElementById("vaultContent");
+
+let dragonsSaved=JSON.parse(localStorage.getItem("dragons")) || [];
+
+if(dragonsSaved.length===0){
+
+content.innerHTML="<p>No dragons discovered yet.</p>";
+return;
+
+}
+
+content.innerHTML="";
+
+dragonsSaved.forEach(dragon=>{
+
+content.innerHTML+=`
+
+<div class="card">
+<h2>${dragon.name}</h2>
+<p>${dragon.rarity}</p>
+</div>
+
+`;
+
+});
+
+}
+
+function closeVault(){
+
+document.getElementById("vault").style.display="none";
 
 }
 

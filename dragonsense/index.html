@@ -1,69 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dragon Sense</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#000;color:white;overflow:hidden;height:100vh}
+.app{position:relative;height:100vh;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.7)),url('https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1400&auto=format&fit=crop') center/cover no-repeat;overflow:hidden}
+.dragonShadow{position:absolute;top:120px;left:50%;transform:translateX(-50%);width:420px;opacity:.16;filter:blur(.5px);z-index:1}
+.top{position:relative;z-index:3;display:flex;justify-content:space-between;padding:25px;font-size:14px;letter-spacing:3px}
+.center{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;padding:20px;margin-top:10px}
+.logo{font-size:60px;line-height:.95;letter-spacing:10px;text-align:center;font-weight:200}
+.sub{margin-top:20px;font-size:14px;letter-spacing:4px;color:#67ff8f;text-shadow:0 0 12px #00ff66}
+.radar{position:relative;width:250px;height:250px;margin:32px 0;border-radius:50%;border:1px solid rgba(0,255,100,.25);overflow:hidden;box-shadow:0 0 45px rgba(0,255,100,.15)}
+.radar:before{content:"";position:absolute;inset:0;border-radius:50%;background:repeating-radial-gradient(circle,rgba(0,255,100,.16) 0px,rgba(0,255,100,.02) 2px,transparent 38px)}
+.radar:after{content:"";position:absolute;width:50%;height:50%;background:linear-gradient(90deg,rgba(0,255,100,0),rgba(0,255,100,.5));left:50%;top:50%;transform-origin:left top;animation:sweep 3s linear infinite}
+@keyframes sweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.status{font-size:14px;letter-spacing:5px;color:#67ff8f;margin-bottom:18px;text-shadow:0 0 12px #00ff66}
+.message{font-size:38px;text-align:center;letter-spacing:4px;line-height:1.15}
+.small{margin-top:18px;opacity:.8;font-size:14px;letter-spacing:2px;text-align:center}
+.activate{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:5;width:86%;max-width:420px;padding:22px;border-radius:20px;border:1px solid rgba(0,255,100,.35);background:rgba(0,0,0,.75);color:#67ff8f;font-size:23px;letter-spacing:4px;box-shadow:0 0 25px rgba(0,255,100,.25)}
+.activate:active{transform:translateX(-50%) scale(.96)}
+.bottom{position:fixed;bottom:0;left:0;right:0;height:90px;background:rgba(0,0,0,.94);display:grid;grid-template-columns:repeat(4,1fr);z-index:10;border-top:1px solid rgba(0,255,100,.12)}
+.nav{display:flex;justify-content:center;align-items:center;font-size:11px;letter-spacing:2px;color:#67ff8f;opacity:.85;text-align:center}
+.reveal{position:fixed;inset:0;background:radial-gradient(circle at center,rgba(0,255,120,.18),rgba(0,0,0,.96) 55%),#001108;z-index:999;display:none;justify-content:center;align-items:center;flex-direction:column;overflow:hidden;padding:30px;text-align:center}
+.reveal:before{content:"";position:absolute;width:320px;height:320px;border-radius:50%;border:2px solid rgba(0,255,100,.4);animation:pulse 1.5s infinite}
+@keyframes pulse{0%{transform:scale(.7);opacity:1}100%{transform:scale(2);opacity:0}}
+.scan{position:relative;z-index:2;font-size:25px;letter-spacing:5px;color:#67ff8f;text-shadow:0 0 18px #00ff66;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.45}}
+.dragonCard{position:relative;z-index:2;background:rgba(0,0,0,.65);border:1px solid rgba(0,255,100,.25);border-radius:24px;padding:25px;width:90%;max-width:360px;box-shadow:0 0 30px rgba(0,255,100,.15)}
+.dragonImage{width:100%;border-radius:18px;margin-bottom:20px}
+.dragonName{font-size:36px;letter-spacing:4px;margin-bottom:12px}
+.rarity{font-size:20px;letter-spacing:4px}
+.common{color:#ccc}.rare{color:#4fc3f7}.epic{color:#c77dff}.legendary{color:gold}
+.tap{margin-top:24px;opacity:.7;letter-spacing:3px}
+.vault{position:fixed;inset:0;background:#040404;z-index:998;display:none;overflow:auto;padding:30px}
+.vault h1{margin-bottom:30px;letter-spacing:4px}
+.card{background:#101010;padding:20px;border-radius:18px;margin-bottom:16px;border:1px solid rgba(0,255,100,.08)}
+.close{position:fixed;top:20px;right:20px;padding:12px 15px;border:none;border-radius:12px;background:#67ff8f;color:black;font-weight:bold;z-index:999}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+<img class="dragonShadow" src="https://pngimg.com/d/dragon_PNG84467.png">
+
+<div class="top">
+<div>☰</div>
+<div>COASTAL ZONE ●</div>
+</div>
+
+<div class="center">
+<div class="logo">DRAGON<br>SENSE</div>
+<div class="sub">hidden world. real presence.</div>
+<div class="radar"></div>
+<div class="status">SIGNAL UNSTABLE</div>
+<div class="message">THE VEIL IS THIN HERE</div>
+<div class="small">No nearby resonance detected.</div>
+</div>
+
+<button class="activate" onclick="huntDragon()">ACTIVATE SENSE</button>
+
+<div class="bottom">
+<div class="nav">SENSE</div>
+<div class="nav" onclick="openVault()">MY DRAGONS</div>
+<div class="nav">DISCOVERIES</div>
+<div class="nav">ARCHIVE</div>
+</div>
+</div>
+
+<div class="reveal" id="reveal">
+<div class="scan" id="scanText">SCANNING REALITY...</div>
+</div>
+
+<div class="vault" id="vault">
+<button class="close" onclick="closeVault()">X</button>
+<h1>MY DRAGONS</h1>
+<div id="vaultContent"></div>
+</div>
+
+<script>
+let audioCtx;
+
+function unlockAudio(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume();
+  }
+}
+
+function beep(freq=440,duration=.25,volume=.35){
+  unlockAudio();
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.type="square";
+  osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
+  gain.gain.setValueAtTime(volume,audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime+duration);
+}
+
+function scannerSound(){
+  beep(220,.18,.35);
+  setTimeout(()=>beep(330,.18,.35),300);
+  setTimeout(()=>beep(440,.18,.35),600);
+  setTimeout(()=>beep(600,.3,.4),1000);
+}
+
+function revealSound(rarity){
+  if(rarity==="LEGENDARY"){
+    beep(180,.25,.45);
+    setTimeout(()=>beep(440,.3,.45),220);
+    setTimeout(()=>beep(880,.45,.5),520);
+  }else{
+    beep(440,.25,.4);
+    setTimeout(()=>beep(660,.3,.4),250);
+  }
+}
+
+const dragons=[
+{name:"EMBERCLAW",rarity:"COMMON",image:"https://images.unsplash.com/photo-1577495508326-19a1b3cf65b7?q=80&w=1200&auto=format&fit=crop"},
+{name:"FROSTFANG",rarity:"RARE",image:"https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=1200&auto=format&fit=crop"},
+{name:"VOIDSERPENT",rarity:"EPIC",image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"},
+{name:"THE ANCIENT",rarity:"LEGENDARY",image:"https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1200&auto=format&fit=crop"}
+];
+
 function huntDragon(){
+  unlockAudio();
 
-if(!audioCtx){
-audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-audioCtx.resume();
+  const reveal=document.getElementById("reveal");
+  reveal.style.display="flex";
+  reveal.innerHTML='<div class="scan" id="scanText">SCANNING REALITY...</div>';
+
+  scannerSound();
+
+  setTimeout(()=>{
+    document.getElementById("scanText").innerHTML="SIGNAL LOCKED";
+  },1800);
+
+  setTimeout(()=>{
+    const dragon=dragons[Math.floor(Math.random()*dragons.length)];
+    revealSound(dragon.rarity);
+    saveDragon(dragon);
+
+    const rarityClass=dragon.rarity.toLowerCase();
+
+    reveal.innerHTML=`
+      <div class="dragonCard">
+        <img class="dragonImage" src="${dragon.image}">
+        <div class="dragonName">${dragon.name}</div>
+        <div class="rarity ${rarityClass}">${dragon.rarity}</div>
+        <div class="tap">TAP ANYWHERE TO CONTINUE</div>
+      </div>
+    `;
+
+    reveal.onclick=()=>{
+      reveal.style.display="none";
+    };
+  },4000);
 }
 
-const reveal=document.getElementById("reveal");
-const scan=document.getElementById("scanText");
-
-reveal.style.display="flex";
-
-scannerSound();
-
-scan.innerHTML="SCANNING REALITY...";
-
-setTimeout(()=>{
-
-scan.innerHTML="SIGNAL LOCKED";
-
-},1800);
-
-setTimeout(()=>{
-
-const dragon=dragons[Math.floor(Math.random()*dragons.length)];
-
-revealSound(dragon.rarity);
-
-let rarityClass=dragon.rarity.toLowerCase();
-
-reveal.innerHTML=`
-
-<div class="dragonCard">
-
-<img class="dragonImage" src="${dragon.image}">
-
-<div class="dragonName">
-${dragon.name}
-</div>
-
-<div class="rarity ${rarityClass}">
-${dragon.rarity}
-</div>
-
-<div class="tap">
-TAP ANYWHERE TO CONTINUE
-</div>
-
-</div>
-
-`;
-
-saveDragon(dragon);
-
-reveal.onclick=()=>{
-
-reveal.style.display="none";
-
-reveal.innerHTML=`
-<div class="scan" id="scanText">
-SCANNING REALITY...
-</div>
-`;
-
-};
-
-},4000);
-
+function saveDragon(dragon){
+  let vault=JSON.parse(localStorage.getItem("dragons")) || [];
+  vault.push(dragon);
+  localStorage.setItem("dragons",JSON.stringify(vault));
 }
+
+function openVault(){
+  const vault=document.getElementById("vault");
+  const content=document.getElementById("vaultContent");
+  vault.style.display="block";
+
+  let dragonsSaved=JSON.parse(localStorage.getItem("dragons")) || [];
+
+  if(dragonsSaved.length===0){
+    content.innerHTML="<p>No dragons discovered yet.</p>";
+    return;
+  }
+
+  content.innerHTML="";
+  dragonsSaved.forEach(dragon=>{
+    content.innerHTML+=`
+      <div class="card">
+        <h2>${dragon.name}</h2>
+        <p>${dragon.rarity}</p>
+      </div>
+    `;
+  });
+}
+
+function closeVault(){
+  document.getElementById("vault").style.display="none";
+}
+</script>
+
+</body>
+</html>

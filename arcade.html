@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Arcade Meter Collector - One Machine Test</title>
+<style>
+:root{--bg:#080c10;--panel:#121923;--panel2:#1e293b;--text:#f8fafc;--muted:#94a3b8;--line:#334155;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--blue:#38bdf8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+header{padding:10px 12px;background:#05070a;border-bottom:1px solid var(--line)}
+h1{font-size:18px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+main{padding:10px 10px 150px}button{font-family:inherit}
+.screen{display:none}.screen.active{display:block}
+.topBtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.bigBtn,.smallBtn,.key{border:2px solid #475569;background:linear-gradient(180deg,#334155,#1e293b);color:var(--text);border-radius:18px;font-weight:900;box-shadow:0 6px 0 #020617,0 10px 18px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.08)}
+.bigBtn:active,.smallBtn:active,.key:active{transform:translateY(4px);box-shadow:0 2px 0 #020617,0 5px 10px rgba(0,0,0,.35)}
+.bigBtn{padding:16px 8px;font-size:15px}.smallBtn{padding:13px 8px;font-size:14px}
+.green{background:linear-gradient(180deg,#4ade80,#22c55e)!important;color:#052e16!important;border-color:#22c55e!important}
+.amber{background:linear-gradient(180deg,#fbbf24,#f59e0b)!important;color:#3b2500!important;border-color:#f59e0b!important}
+.red{background:linear-gradient(180deg,#ef4444,#7f1d1d)!important;color:white!important;border-color:#7f1d1d!important}
+.blue{background:linear-gradient(180deg,#38bdf8,#0c4a6e)!important;color:white!important;border-color:#0c4a6e!important}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:10px}
+.category{font-size:13px;color:var(--blue);font-weight:900;text-transform:uppercase}
+.machine{font-size:27px;font-weight:900;margin-top:8px;line-height:1.1}
+.meta,.statusLine{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.4}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.field{background:#07101c;border:2px solid var(--line);border-radius:18px;padding:12px}
+.field.active{border-color:var(--green);box-shadow:0 0 0 3px rgba(34,197,94,.25)}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.value{font-size:30px;font-weight:900;min-height:38px}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.machineGrid{display:grid;grid-template-columns:1fr;gap:8px}.machineBtn{text-align:left}
+.progress{height:9px;background:#020617;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin:10px 0}
+.progress span{display:block;height:100%;width:0%;background:var(--green)}
+.bottomPad{position:fixed;bottom:0;left:0;right:0;background:#030507;border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.key{font-size:24px;padding:15px 0;border-radius:16px}.keyText{font-size:15px}
+textarea{width:100%;height:170px;border-radius:14px;background:#07101c;color:white;border:1px solid var(--line);padding:10px}
+.total{font-size:28px;font-weight:900;margin:10px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>Arcade Meter Collector</h1>
+  <div class="sub">One-machine test. Open in Safari if buttons do not respond in the download preview.</div>
+</header>
+
+<main>
+  <div class="topBtns">
+    <button id="btnMachines" class="bigBtn blue" type="button">MACHINES</button>
+    <button id="btnMissing" class="bigBtn amber" type="button">MISSING</button>
+    <button id="btnExport" class="bigBtn green" type="button">EXPORT</button>
+  </div>
+
+  <div class="progress"><span id="bar"></span></div>
+  <div class="statusLine" id="progressText">0 / 1 complete</div>
+
+  <section id="listScreen" class="screen active">
+    <div class="card">
+      <div class="category">Pick a machine to test</div>
+      <div class="statusLine">Tap the test machine below, then use the keypad.</div>
+    </div>
+    <div class="machineGrid">
+      <button id="openTestMachine" class="bigBtn machineBtn" type="button">
+        <b>245 - TOUR BUS</b>
+        <div class="statusLine" id="listStatus">Kiddie Ride • MISSING • Meter: — • Income: —</div>
+      </button>
+    </div>
+  </section>
+
+  <section id="entryScreen" class="screen">
+    <div class="card">
+      <div class="category">Kiddie Ride</div>
+      <div class="machine">TOUR BUS</div>
+      <div class="meta">Loc 245 • Mod/Stk 8021 • Position 7 • QR later: LOC245</div>
+
+      <div class="fields">
+        <div class="field active" id="meterField">
+          <label>Meter</label>
+          <div class="value" id="meterDisplay">—</div>
+        </div>
+        <div class="field" id="takeField">
+          <label>Income / 2nd Take</label>
+          <div class="value" id="takeDisplay">—</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnBypass" class="smallBtn amber" type="button">BYPASS</button>
+        <button id="btnList" class="smallBtn blue" type="button">LIST</button>
+        <button id="btnSave" class="smallBtn green" type="button">SAVE</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="missingScreen" class="screen">
+    <div class="card">
+      <div class="category">Missing</div>
+      <div id="missingText" class="statusLine">245 - TOUR BUS</div>
+    </div>
+  </section>
+
+  <section id="exportScreen" class="screen">
+    <div class="card">
+      <div class="category">Export</div>
+      <div class="total" id="totalIncome">Total income: £0.00</div>
+      <button id="btnCopy" class="bigBtn green" type="button">COPY CSV</button>
+      <button id="btnReset" class="bigBtn red" type="button">RESET TEST</button>
+      <br><br>
+      <textarea id="csvBox" readonly></textarea>
+    </div>
+  </section>
+</main>
+
+<div class="bottomPad" id="keypad" style="display:none">
+  <div class="pad">
+    <button class="key num" data-v="1" type="button">1</button>
+    <button class="key num" data-v="2" type="button">2</button>
+    <button class="key num" data-v="3" type="button">3</button>
+    <button id="btnBack" class="key red keyText" type="button">⌫</button>
+    <button class="key num" data-v="4" type="button">4</button>
+    <button class="key num" data-v="5" type="button">5</button>
+    <button class="key num" data-v="6" type="button">6</button>
+    <button id="btnField" class="key blue keyText" type="button">FIELD</button>
+    <button class="key num" data-v="7" type="button">7</button>
+    <button class="key num" data-v="8" type="button">8</button>
+    <button class="key num" data-v="9" type="button">9</button>
+    <button id="btnSkip" class="key amber keyText" type="button">SKIP</button>
+    <button class="key num" data-v="." type="button">.</button>
+    <button class="key num" data-v="0" type="button">0</button>
+    <button id="btnClear" class="key red keyText" type="button">CLEAR</button>
+    <button id="btnDone" class="key green keyText" type="button">SAVE</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var meter = "";
+  var take = "";
+  var field = "meter";
+  var status = "MISSING";
+
+  function $(id){ return document.getElementById(id); }
+
+  function show(id){
+    ["listScreen","entryScreen","missingScreen","exportScreen"].forEach(function(s){
+      $(s).classList.remove("active");
+    });
+    $(id).classList.add("active");
+    $("keypad").style.display = id === "entryScreen" ? "block" : "none";
+    update();
+  }
+
+  function update(){
+    $("meterDisplay").textContent = meter || "—";
+    $("takeDisplay").textContent = take || "—";
+    $("meterField").classList.toggle("active", field === "meter");
+    $("takeField").classList.toggle("active", field === "take");
+    $("bar").style.width = (status === "DONE" || status === "BYPASSED") ? "100%" : "0%";
+    $("progressText").textContent = (status === "DONE" || status === "BYPASSED" ? "1" : "0") + " / 1 complete";
+    $("listStatus").textContent = "Kiddie Ride • " + status + " • Meter: " + (meter || "—") + " • Income: " + (take || "—");
+    $("missingText").textContent = (status === "DONE") ? "None" : "245 - TOUR BUS (" + status + ")";
+    var income = parseFloat(take || "0") || 0;
+    $("totalIncome").textContent = "Total income: £" + income.toFixed(2);
+    $("csvBox").value = [
+      "Date,Category,Loc,Machine,Meter,Income,Status",
+      '"' + new Date().toLocaleDateString("en-GB") + '","Kiddie Ride","245","TOUR BUS","' + meter + '","' + take + '","' + status + '"'
+    ].join("\n");
+  }
+
+  function press(v){
+    if(v === "." && (field === "meter" ? meter : take).indexOf(".") >= 0) return;
+    if(field === "meter") meter += v; else take += v;
+    if(status === "MISSING") status = "IN PROGRESS";
+    update();
+  }
+
+  function back(){
+    if(field === "meter") meter = meter.slice(0,-1); else take = take.slice(0,-1);
+    update();
+  }
+
+  function clear(){
+    if(field === "meter") meter = ""; else take = "";
+    update();
+  }
+
+  function toggleField(){
+    field = field === "meter" ? "take" : "meter";
+    update();
+  }
+
+  function save(){
+    if(field === "meter" && !take){
+      field = "take";
+    } else {
+      status = "DONE";
+      show("exportScreen");
+      return;
+    }
+    update();
+  }
+
+  function bypass(){
+    status = "BYPASSED";
+    show("exportScreen");
+  }
+
+  function reset(){
+    meter = "";
+    take = "";
+    field = "meter";
+    status = "MISSING";
+    show("listScreen");
+  }
+
+  $("btnMachines").addEventListener("click", function(){ show("listScreen"); });
+  $("btnMissing").addEventListener("click", function(){ show("missingScreen"); });
+  $("btnExport").addEventListener("click", function(){ show("exportScreen"); });
+  $("openTestMachine").addEventListener("click", function(){ show("entryScreen"); });
+  $("btnList").addEventListener("click", function(){ show("listScreen"); });
+  $("btnBypass").addEventListener("click", bypass);
+  $("btnSave").addEventListener("click", save);
+  $("btnDone").addEventListener("click", save);
+  $("btnSkip").addEventListener("click", bypass);
+  $("btnField").addEventListener("click", toggleField);
+  $("btnBack").addEventListener("click", back);
+  $("btnClear").addEventListener("click", clear);
+  $("btnReset").addEventListener("click", reset);
+  $("meterField").addEventListener("click", function(){ field = "meter"; update(); });
+  $("takeField").addEventListener("click", function(){ field = "take"; update(); });
+  $("btnCopy").addEventListener("click", function(){
+    var text = $("csvBox").value;
+    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ alert("Copied"); }); }
+    else { $("csvBox").select(); document.execCommand("copy"); alert("Copied"); }
+  });
+  document.querySelectorAll(".num").forEach(function(btn){
+    btn.addEventListener("click", function(){ press(btn.getAttribute("data-v")); });
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>

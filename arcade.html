@@ -3,244 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Arcade Meter Collector - One Machine Test</title>
+<title>Arcade Collector - Scan Thumb Flow</title>
 <style>
-:root{--bg:#080c10;--panel:#121923;--panel2:#1e293b;--text:#f8fafc;--muted:#94a3b8;--line:#334155;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--blue:#38bdf8}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-header{padding:10px 12px;background:#05070a;border-bottom:1px solid var(--line)}
-h1{font-size:18px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:4px}
-main{padding:10px 10px 150px}button{font-family:inherit}
-.screen{display:none}.screen.active{display:block}
-.topBtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.bigBtn,.smallBtn,.key{border:2px solid #475569;background:linear-gradient(180deg,#334155,#1e293b);color:var(--text);border-radius:18px;font-weight:900;box-shadow:0 6px 0 #020617,0 10px 18px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.08)}
-.bigBtn:active,.smallBtn:active,.key:active{transform:translateY(4px);box-shadow:0 2px 0 #020617,0 5px 10px rgba(0,0,0,.35)}
-.bigBtn{padding:16px 8px;font-size:15px}.smallBtn{padding:13px 8px;font-size:14px}
+:root{--bg:#070b10;--panel:#101923;--text:#f8fafc;--muted:#94a3b8;--line:#334155;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--blue:#38bdf8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+button{font-family:inherit;touch-action:manipulation}
+.app{height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+.top{padding:10px 12px;background:#05080c;border-bottom:1px solid var(--line)}
+.topRow{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:8px}
+.progress{height:8px;border-radius:99px;border:1px solid var(--line);background:#020617;overflow:hidden}
+.progress span{display:block;height:100%;width:0%;background:var(--green)}
+.main{padding:10px;min-height:0;overflow:hidden}
+.card{height:100%;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:14px;overflow:hidden}
+.screen{display:none;height:100%}.screen.active{display:flex;flex-direction:column}
+.label{color:var(--blue);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.6px}
+.title{font-size:31px;font-weight:950;line-height:1.05;margin-top:8px}
+.meta{margin-top:7px;color:var(--muted);font-size:14px;line-height:1.35}
+.scanBox{margin-top:14px;background:#07101c;border:2px dashed var(--line);border-radius:22px;min-height:180px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:12px;overflow:hidden}
+video{width:100%;height:100%;object-fit:cover;border-radius:18px;background:#000}
+.inputBox{margin-top:12px;height:92px;background:#07101c;border:3px solid var(--green);border-radius:22px;display:flex;align-items:center;padding:0 18px;box-shadow:0 0 0 4px rgba(34,197,94,.18)}
+.value{font-size:46px;font-weight:950;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.smallGrid{margin-top:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.smallBox{background:#07101c;border:1px solid var(--line);border-radius:16px;padding:9px}
+.smallBox span{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}.smallBox b{font-size:19px}
+.list{margin-top:10px;overflow:auto;padding-bottom:10px}
+.row{background:#07101c;border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px}.row b{display:block;font-size:15px}.row span{color:var(--muted);font-size:12px}
+.btn,.key{border:2px solid #475569;border-radius:20px;background:linear-gradient(180deg,#334155,#1e293b);color:var(--text);font-weight:950;box-shadow:0 6px 0 #020617,0 10px 18px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.08)}
+.btn:active,.key:active{transform:translateY(4px);box-shadow:0 2px 0 #020617,0 5px 10px rgba(0,0,0,.35)}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.btn{padding:15px 8px;font-size:15px}
 .green{background:linear-gradient(180deg,#4ade80,#22c55e)!important;color:#052e16!important;border-color:#22c55e!important}
 .amber{background:linear-gradient(180deg,#fbbf24,#f59e0b)!important;color:#3b2500!important;border-color:#f59e0b!important}
 .red{background:linear-gradient(180deg,#ef4444,#7f1d1d)!important;color:white!important;border-color:#7f1d1d!important}
 .blue{background:linear-gradient(180deg,#38bdf8,#0c4a6e)!important;color:white!important;border-color:#0c4a6e!important}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:10px}
-.category{font-size:13px;color:var(--blue);font-weight:900;text-transform:uppercase}
-.machine{font-size:27px;font-weight:900;margin-top:8px;line-height:1.1}
-.meta,.statusLine{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.4}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.field{background:#07101c;border:2px solid var(--line);border-radius:18px;padding:12px}
-.field.active{border-color:var(--green);box-shadow:0 0 0 3px rgba(34,197,94,.25)}
-label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
-.value{font-size:30px;font-weight:900;min-height:38px}
-.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
-.machineGrid{display:grid;grid-template-columns:1fr;gap:8px}.machineBtn{text-align:left}
-.progress{height:9px;background:#020617;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin:10px 0}
-.progress span{display:block;height:100%;width:0%;background:var(--green)}
-.bottomPad{position:fixed;bottom:0;left:0;right:0;background:#030507;border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
-.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.key{font-size:24px;padding:15px 0;border-radius:16px}.keyText{font-size:15px}
-textarea{width:100%;height:170px;border-radius:14px;background:#07101c;color:white;border:1px solid var(--line);padding:10px}
-.total{font-size:28px;font-weight:900;margin:10px 0}
+.keypadWrap{padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:#030507;border-top:1px solid var(--line)}
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,72px);gap:8px}
+.key{font-size:30px}.keyText{font-size:17px}.hiddenPad{display:none}
+textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;border:1px solid var(--line);border-radius:14px;padding:10px;user-select:text}
 </style>
 </head>
 <body>
-<header>
-  <h1>Arcade Meter Collector</h1>
-  <div class="sub">One-machine test. Open in Safari if buttons do not respond in the download preview.</div>
-</header>
-
-<main>
-  <div class="topBtns">
-    <button id="btnMachines" class="bigBtn blue" type="button">MACHINES</button>
-    <button id="btnMissing" class="bigBtn amber" type="button">MISSING</button>
-    <button id="btnExport" class="bigBtn green" type="button">EXPORT</button>
-  </div>
-
-  <div class="progress"><span id="bar"></span></div>
-  <div class="statusLine" id="progressText">0 / 1 complete</div>
-
-  <section id="listScreen" class="screen active">
-    <div class="card">
-      <div class="category">Pick a machine to test</div>
-      <div class="statusLine">Tap the test machine below, then use the keypad.</div>
+<div class="app">
+  <div class="top"><div class="topRow"><div id="topLeft">Scan machine</div><div id="topRight">0 / 18 done</div></div><div class="progress"><span id="bar"></span></div></div>
+  <main class="main"><section class="card">
+    <div id="scanScreen" class="screen active">
+      <div class="label">Scanner</div><div class="title">Scan machine code</div>
+      <div class="meta">Scan QR/barcode to open the correct machine. Use TEST SCAN while testing.</div>
+      <div class="scanBox" id="scanBox"><div>Camera scan needs HTTPS/browser support.<br><br>Test codes:<br><b>LOC245</b>, <b>LOC569</b>, <b>LOC1</b></div></div>
+      <div class="actions"><button class="btn blue" id="startCamBtn">CAMERA</button><button class="btn amber" id="testScanBtn">TEST SCAN</button><button class="btn green" id="reportBtn1">REPORT</button></div>
     </div>
-    <div class="machineGrid">
-      <button id="openTestMachine" class="bigBtn machineBtn" type="button">
-        <b>245 - TOUR BUS</b>
-        <div class="statusLine" id="listStatus">Kiddie Ride • MISSING • Meter: — • Income: —</div>
-      </button>
+    <div id="inputScreen" class="screen">
+      <div class="label" id="machineCat"></div><div class="title" id="machineName"></div><div class="meta" id="machineMeta"></div>
+      <div class="meta" id="meterStep"></div><div class="inputBox"><div class="value" id="valueDisplay">—</div></div>
+      <div class="smallGrid" id="meterSummary"></div>
+      <div class="actions"><button class="btn amber" id="skipMachineBtn">SKIP</button><button class="btn blue" id="scanBackBtn">SCAN</button><button class="btn green" id="inputBtn">INPUT</button></div>
     </div>
-  </section>
-
-  <section id="entryScreen" class="screen">
-    <div class="card">
-      <div class="category">Kiddie Ride</div>
-      <div class="machine">TOUR BUS</div>
-      <div class="meta">Loc 245 • Mod/Stk 8021 • Position 7 • QR later: LOC245</div>
-
-      <div class="fields">
-        <div class="field active" id="meterField">
-          <label>Meter</label>
-          <div class="value" id="meterDisplay">—</div>
-        </div>
-        <div class="field" id="takeField">
-          <label>Income / 2nd Take</label>
-          <div class="value" id="takeDisplay">—</div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="btnBypass" class="smallBtn amber" type="button">BYPASS</button>
-        <button id="btnList" class="smallBtn blue" type="button">LIST</button>
-        <button id="btnSave" class="smallBtn green" type="button">SAVE</button>
-      </div>
+    <div id="reportScreen" class="screen">
+      <div class="label">Report</div><div class="title">Today’s collection</div><div class="meta" id="reportMeta"></div>
+      <div class="actions"><button class="btn blue" id="backScanBtn">SCAN</button><button class="btn green" id="copyBtn">COPY</button><button class="btn red" id="resetBtn">RESET</button></div>
+      <textarea id="csvBox" readonly></textarea><div class="list" id="reportList"></div>
     </div>
-  </section>
-
-  <section id="missingScreen" class="screen">
-    <div class="card">
-      <div class="category">Missing</div>
-      <div id="missingText" class="statusLine">245 - TOUR BUS</div>
-    </div>
-  </section>
-
-  <section id="exportScreen" class="screen">
-    <div class="card">
-      <div class="category">Export</div>
-      <div class="total" id="totalIncome">Total income: £0.00</div>
-      <button id="btnCopy" class="bigBtn green" type="button">COPY CSV</button>
-      <button id="btnReset" class="bigBtn red" type="button">RESET TEST</button>
-      <br><br>
-      <textarea id="csvBox" readonly></textarea>
-    </div>
-  </section>
-</main>
-
-<div class="bottomPad" id="keypad" style="display:none">
-  <div class="pad">
-    <button class="key num" data-v="1" type="button">1</button>
-    <button class="key num" data-v="2" type="button">2</button>
-    <button class="key num" data-v="3" type="button">3</button>
-    <button id="btnBack" class="key red keyText" type="button">⌫</button>
-    <button class="key num" data-v="4" type="button">4</button>
-    <button class="key num" data-v="5" type="button">5</button>
-    <button class="key num" data-v="6" type="button">6</button>
-    <button id="btnField" class="key blue keyText" type="button">FIELD</button>
-    <button class="key num" data-v="7" type="button">7</button>
-    <button class="key num" data-v="8" type="button">8</button>
-    <button class="key num" data-v="9" type="button">9</button>
-    <button id="btnSkip" class="key amber keyText" type="button">SKIP</button>
-    <button class="key num" data-v="." type="button">.</button>
-    <button class="key num" data-v="0" type="button">0</button>
-    <button id="btnClear" class="key red keyText" type="button">CLEAR</button>
-    <button id="btnDone" class="key green keyText" type="button">SAVE</button>
-  </div>
+  </section></main>
+  <div class="keypadWrap hiddenPad" id="keypadWrap"><div class="keypad">
+    <button class="key num" data-v="1">1</button><button class="key num" data-v="2">2</button><button class="key num" data-v="3">3</button><button class="key red keyText" id="backBtn">⌫</button>
+    <button class="key num" data-v="4">4</button><button class="key num" data-v="5">5</button><button class="key num" data-v="6">6</button><button class="key amber keyText" id="skipKeyBtn">SKIP</button>
+    <button class="key num" data-v="7">7</button><button class="key num" data-v="8">8</button><button class="key num" data-v="9">9</button><button class="key blue keyText" id="scanKeyBtn">SCAN</button>
+    <button class="key num" data-v=".">.</button><button class="key num" data-v="0">0</button><button class="key red keyText" id="clearBtn">CLEAR</button><button class="key green keyText" id="inputKeyBtn">INPUT</button>
+  </div></div>
 </div>
-
 <script>
-(function(){
-  var meter = "";
-  var take = "";
-  var field = "meter";
-  var status = "MISSING";
-
-  function $(id){ return document.getElementById(id); }
-
-  function show(id){
-    ["listScreen","entryScreen","missingScreen","exportScreen"].forEach(function(s){
-      $(s).classList.remove("active");
-    });
-    $(id).classList.add("active");
-    $("keypad").style.display = id === "entryScreen" ? "block" : "none";
-    update();
-  }
-
-  function update(){
-    $("meterDisplay").textContent = meter || "—";
-    $("takeDisplay").textContent = take || "—";
-    $("meterField").classList.toggle("active", field === "meter");
-    $("takeField").classList.toggle("active", field === "take");
-    $("bar").style.width = (status === "DONE" || status === "BYPASSED") ? "100%" : "0%";
-    $("progressText").textContent = (status === "DONE" || status === "BYPASSED" ? "1" : "0") + " / 1 complete";
-    $("listStatus").textContent = "Kiddie Ride • " + status + " • Meter: " + (meter || "—") + " • Income: " + (take || "—");
-    $("missingText").textContent = (status === "DONE") ? "None" : "245 - TOUR BUS (" + status + ")";
-    var income = parseFloat(take || "0") || 0;
-    $("totalIncome").textContent = "Total income: £" + income.toFixed(2);
-    $("csvBox").value = [
-      "Date,Category,Loc,Machine,Meter,Income,Status",
-      '"' + new Date().toLocaleDateString("en-GB") + '","Kiddie Ride","245","TOUR BUS","' + meter + '","' + take + '","' + status + '"'
-    ].join("\n");
-  }
-
-  function press(v){
-    if(v === "." && (field === "meter" ? meter : take).indexOf(".") >= 0) return;
-    if(field === "meter") meter += v; else take += v;
-    if(status === "MISSING") status = "IN PROGRESS";
-    update();
-  }
-
-  function back(){
-    if(field === "meter") meter = meter.slice(0,-1); else take = take.slice(0,-1);
-    update();
-  }
-
-  function clear(){
-    if(field === "meter") meter = ""; else take = "";
-    update();
-  }
-
-  function toggleField(){
-    field = field === "meter" ? "take" : "meter";
-    update();
-  }
-
-  function save(){
-    if(field === "meter" && !take){
-      field = "take";
-    } else {
-      status = "DONE";
-      show("exportScreen");
-      return;
-    }
-    update();
-  }
-
-  function bypass(){
-    status = "BYPASSED";
-    show("exportScreen");
-  }
-
-  function reset(){
-    meter = "";
-    take = "";
-    field = "meter";
-    status = "MISSING";
-    show("listScreen");
-  }
-
-  $("btnMachines").addEventListener("click", function(){ show("listScreen"); });
-  $("btnMissing").addEventListener("click", function(){ show("missingScreen"); });
-  $("btnExport").addEventListener("click", function(){ show("exportScreen"); });
-  $("openTestMachine").addEventListener("click", function(){ show("entryScreen"); });
-  $("btnList").addEventListener("click", function(){ show("listScreen"); });
-  $("btnBypass").addEventListener("click", bypass);
-  $("btnSave").addEventListener("click", save);
-  $("btnDone").addEventListener("click", save);
-  $("btnSkip").addEventListener("click", bypass);
-  $("btnField").addEventListener("click", toggleField);
-  $("btnBack").addEventListener("click", back);
-  $("btnClear").addEventListener("click", clear);
-  $("btnReset").addEventListener("click", reset);
-  $("meterField").addEventListener("click", function(){ field = "meter"; update(); });
-  $("takeField").addEventListener("click", function(){ field = "take"; update(); });
-  $("btnCopy").addEventListener("click", function(){
-    var text = $("csvBox").value;
-    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ alert("Copied"); }); }
-    else { $("csvBox").select(); document.execCommand("copy"); alert("Copied"); }
-  });
-  document.querySelectorAll(".num").forEach(function(btn){
-    btn.addEventListener("click", function(){ press(btn.getAttribute("data-v")); });
-  });
-
-  update();
-})();
+const machines=[
+{cat:"Kiddie Ride",loc:"245",mod:"8021",pos:"7",name:"TOUR BUS",meters:1,codes:["LOC245","245","TOURBUS"]},
+{cat:"Kiddie Ride",loc:"287",mod:"7982",pos:"8",name:"SPACE ROBOT",meters:1,codes:["LOC287","287","SPACEROBOT"]},
+{cat:"Kiddie Ride",loc:"438",mod:"6986",pos:"1",name:"HANKS HOT DOG VAN",meters:1,codes:["LOC438","438","HANKS"]},
+{cat:"Prize SWP",loc:"535",mod:"2694",pos:"138",name:"KEYMASTER",meters:1,codes:["LOC535","535","KEYMASTER"]},
+{cat:"Prize SWP",loc:"569",mod:"7945",pos:"25",name:"WINFALL REVOLUTION",meters:2,codes:["LOC569","569","WINFALL"]},
+{cat:"Prize SWP",loc:"890",mod:"6750",pos:"37",name:"SNIP IT",meters:2,codes:["LOC890","890","SNIPIT890"]},
+{cat:"Prize SWP",loc:"891",mod:"6750",pos:"34",name:"SNIP IT",meters:2,codes:["LOC891","891","SNIPIT891"]},
+{cat:"Prize SWP",loc:"6778",mod:"7425",pos:"1",name:"DC SUPERHEROS 2 PLA",meters:2,codes:["LOC6778","6778","DC"]},
+{cat:"Redemption",loc:"1",mod:"775",pos:"15",name:"MILK JUG TOSS",meters:2,codes:["LOC1","1","MILKJUG"]},
+{cat:"Redemption",loc:"3",mod:"3494",pos:"3653",name:"DOWN THE CLOWN",meters:1,codes:["LOC3","3","CLOWN"]},
+{cat:"Redemption",loc:"7",mod:"7791",pos:"6",name:"GENIE JEWELS 2 PLY",meters:2,codes:["LOC7","7","GENIE"]},
+{cat:"Redemption",loc:"8",mod:"3389",pos:"38",name:"MINIONS WHACKER",meters:2,codes:["LOC8","8","WHACKER"]},
+{cat:"Redemption",loc:"10",mod:"6400",pos:"7",name:"NERF ARCADE 2 PLY",meters:2,codes:["LOC10","10","NERF"]},
+{cat:"Redemption",loc:"11",mod:"814",pos:"66",name:"CRAZY TYPHOON TICK",meters:2,codes:["LOC11","11","TYPHOON"]},
+{cat:"Redemption",loc:"16",mod:"4628",pos:"11",name:"DOUBLE SHOT BASKET",meters:2,codes:["LOC16","16","BASKET"]},
+{cat:"Redemption",loc:"18",mod:"4431",pos:"4",name:"SCOOBYS MYSTERY W",meters:2,codes:["LOC18","18","SCOOBY"]},
+{cat:"Redemption",loc:"19",mod:"7200",pos:"14",name:"MAGIC MIRACLE BALL",meters:2,codes:["LOC19","19","MIRACLE"]},
+{cat:"Redemption",loc:"20",mod:"7988",pos:"3",name:"WILLY CRASH JUNIOR",meters:2,codes:["LOC20","20","WILLY"]}
+];
+let entries=JSON.parse(localStorage.getItem("arcade_scan_entries_v1")||"{}"),currentIndex=null,meterIndex=0,input="",stream=null,scanTimer=null;
+function $(id){return document.getElementById(id)} function keyFor(i){return machines[i].loc+"_"+machines[i].name}
+function normal(s){return String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"")}
+function blankEntry(i){return{status:"MISSING",values:Array(machines[i].meters).fill("")}}
+function getEntry(i){const k=keyFor(i);if(!entries[k])entries[k]=blankEntry(i);return entries[k]}
+function save(){localStorage.setItem("arcade_scan_entries_v1",JSON.stringify(entries))}
+function doneCount(){return machines.filter((m,i)=>["DONE","SKIPPED"].includes(getEntry(i).status)).length}
+function updateTop(){const done=doneCount();$("topRight").textContent=done+" / "+machines.length+" done";$("bar").style.width=((done/machines.length)*100)+"%"}
+function showScreen(name){["scanScreen","inputScreen","reportScreen"].forEach(id=>$(id).classList.remove("active"));$(name).classList.add("active");$("keypadWrap").classList.toggle("hiddenPad",name!=="inputScreen");updateTop()}
+function firstEmptyMeter(i){const e=getEntry(i);for(let n=0;n<machines[i].meters;n++){if(!e.values[n])return n}return 0}
+function openMachine(i){stopCamera();currentIndex=i;meterIndex=firstEmptyMeter(i);input=getEntry(i).values[meterIndex]||"";renderInput();showScreen("inputScreen")}
+function renderInput(){const m=machines[currentIndex],e=getEntry(currentIndex);$("topLeft").textContent="Input machine";$("machineCat").textContent=m.cat;$("machineName").textContent=m.name;$("machineMeta").textContent="Loc "+m.loc+" • Mod/Stk "+m.mod+" • Position "+m.pos;$("meterStep").textContent="Meter "+(meterIndex+1)+" of "+m.meters;$("valueDisplay").textContent=input||"—";$("meterSummary").innerHTML="";for(let n=0;n<m.meters;n++){const box=document.createElement("div");box.className="smallBox";box.innerHTML="<span>Meter "+(n+1)+"</span><b>"+(e.values[n]||"—")+"</b>";$("meterSummary").appendChild(box)}}
+function press(v){if(v==="."&&input.includes("."))return;input+=v;$("valueDisplay").textContent=input||"—"}
+function backspace(){input=input.slice(0,-1);$("valueDisplay").textContent=input||"—"}
+function clearInput(){input="";$("valueDisplay").textContent="—"}
+function inputValue(){if(currentIndex===null)return;const e=getEntry(currentIndex);e.values[meterIndex]=input;e.status="IN PROGRESS";if(meterIndex<machines[currentIndex].meters-1){meterIndex++;input=e.values[meterIndex]||"";renderInput()}else{e.status="DONE";save();goScan()}save()}
+function skipMachine(){if(currentIndex!==null){getEntry(currentIndex).status="SKIPPED";save()}goScan()}
+function goScan(){currentIndex=null;meterIndex=0;input="";$("topLeft").textContent="Scan machine";showScreen("scanScreen")}
+function findMachine(code){const c=normal(code);return machines.findIndex(m=>m.codes.some(x=>normal(x)===c)||normal("LOC"+m.loc)===c)}
+function testScan(){const code=prompt("Type test code e.g. LOC245, LOC569, LOC1");if(!code)return;const i=findMachine(code);if(i===-1){alert("Code not found: "+code);return}openMachine(i)}
+async function startCamera(){if(!("BarcodeDetector" in window)){alert("This browser does not support BarcodeDetector. Use TEST SCAN for now.");return}try{stopCamera();const video=document.createElement("video");video.setAttribute("playsinline","");video.muted=true;$("scanBox").innerHTML="";$("scanBox").appendChild(video);stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});video.srcObject=stream;await video.play();const detector=new BarcodeDetector({formats:["qr_code","code_128","ean_13","ean_8"]});scanTimer=setInterval(async()=>{try{const codes=await detector.detect(video);if(codes.length){const i=findMachine(codes[0].rawValue);if(i!==-1)openMachine(i)}}catch(e){}},400)}catch(e){alert("Camera could not start. Use TEST SCAN for now.")}}
+function stopCamera(){if(scanTimer){clearInterval(scanTimer);scanTimer=null}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+function rows(){return machines.map((m,i)=>{const e=getEntry(i),vals=e.values.map((v,n)=>"Meter "+(n+1)+": "+(v||"")).join(" | ");return{Date:new Date().toLocaleDateString("en-GB"),Category:m.cat,Loc:m.loc,Machine:m.name,MeterCount:m.meters,Values:vals,Status:e.status}})}
+function makeCSV(){const r=rows(),h=Object.keys(r[0]);return[h.join(",")].concat(r.map(row=>h.map(k=>'"'+String(row[k]).replaceAll('"','""')+'"').join(","))).join("\n")}
+function showReport(){stopCamera();$("topLeft").textContent="Report";const r=rows(),missing=r.filter(x=>x.Status==="MISSING"||x.Status==="IN PROGRESS");$("reportMeta").textContent=missing.length?missing.length+" missing/incomplete machines":"No missing machines";$("csvBox").value=makeCSV();$("reportList").innerHTML="";r.forEach(row=>{const div=document.createElement("div");div.className="row";div.innerHTML="<b>"+row.Loc+" - "+row.Machine+"</b><span>"+row.Category+" • "+row.Status+"<br>"+row.Values+"</span>";$("reportList").appendChild(div)});showScreen("reportScreen")}
+function copyCSV(){const txt=$("csvBox").value;if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert("CSV copied"));else{$("csvBox").select();document.execCommand("copy");alert("CSV copied")}}
+function resetAll(){if(confirm("Clear this test collection?")){entries={};save();goScan()}}
+document.querySelectorAll(".num").forEach(btn=>btn.addEventListener("click",()=>press(btn.dataset.v)));
+$("backBtn").addEventListener("click",backspace);$("clearBtn").addEventListener("click",clearInput);$("inputBtn").addEventListener("click",inputValue);$("inputKeyBtn").addEventListener("click",inputValue);$("skipMachineBtn").addEventListener("click",skipMachine);$("skipKeyBtn").addEventListener("click",skipMachine);$("scanBackBtn").addEventListener("click",goScan);$("scanKeyBtn").addEventListener("click",goScan);$("reportBtn1").addEventListener("click",showReport);$("backScanBtn").addEventListener("click",goScan);$("copyBtn").addEventListener("click",copyCSV);$("resetBtn").addEventListener("click",resetAll);$("testScanBtn").addEventListener("click",testScan);$("startCamBtn").addEventListener("click",startCamera);updateTop();
 </script>
 </body>
 </html>

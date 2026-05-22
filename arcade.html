@@ -41,8 +41,9 @@ button,input{font-family:inherit;touch-action:manipulation;cursor:pointer}button
 .key{font-size:30px}.keyText{font-size:17px}.hidden{display:none}
 textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;border:1px solid var(--line);border-radius:14px;padding:10px;user-select:text}
 #cameraBox{display:none;margin-top:10px;background:#000;border:1px solid var(--line);border-radius:18px;overflow:hidden;height:180px}
-#video{width:100%;height:100%;object-fit:cover}
+#video{width:100%;height:100%;object-fit:cover}#qrReader{width:100%;height:100%;background:#000}
 </style>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -74,7 +75,7 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
       <div class="title">Scan barcode</div>
       <div class="meta">Scan the Location code to load the machine. Use manual input if needed.</div>
       <div class="inputBox"><div id="barcodeValue" class="value">—</div></div>
-      <div id="cameraBox"><video id="video" playsinline muted></video></div>
+      <div id="cameraBox"><div id="qrReader" style="width:100%;height:100%;"></div></div>
       <div class="grid2">
         <button class="btn green" id="scanBtn">SCAN BARCODE</button>
         <button class="btn amber" id="manualBtn">MANUAL INPUT</button>
@@ -134,7 +135,7 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
 <script>
 let lastTouch=0;document.addEventListener("touchend",e=>{const now=Date.now();if(now-lastTouch<250){e.preventDefault()}lastTouch=now},{passive:false});
 let route=[], entries={}, current=-1, activeScreen="home", barcode="", meter="", income="", incomeIndex=0, meterSlot=0;
-let clearMetersArmed=false, stream=null, scanTimer=null;
+let clearMetersArmed=false, stream=null, scanTimer=null, html5Scanner=null;
 
 function $(id){return document.getElementById(id)}
 function setStatus(t){$("status").textContent=t}
@@ -326,15 +327,58 @@ function resetMetersSafety(){
   Object.keys(entries).forEach(k=>{entries[k].meters=["","","",""];entries[k].meter="";entries[k].meterDone=false});clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red");save();renderPreview();setStatus("Saved meter readings cleared. Route remains loaded.");
 }
 async function startScanner(){
-  if(barcode){openBarcode();return}
-  if(!("BarcodeDetector" in window)||!navigator.mediaDevices){alert("Camera scanner not supported here. Use MANUAL INPUT.");return}
+  if(barcode){
+    openBarcode();
+    return;
+  }
+
+  if(typeof Html5Qrcode === "undefined"){
+    alert("Scanner library has not loaded yet. Refresh the page, or use MANUAL INPUT.");
+    return;
+  }
+
   try{
-    $("cameraBox").style.display="block"; stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});$("video").srcObject=stream;await $("video").play();
-    const detector=new BarcodeDetector({formats:["qr_code","code_128","ean_13","ean_8"]});
-    scanTimer=setInterval(async()=>{try{const codes=await detector.detect($("video")); if(codes.length){let raw=codes[0].rawValue; stopScanner(); openCode(raw)}}catch(e){}},350);
-  }catch(e){alert("Camera blocked. Use MANUAL INPUT.");}
+    $("cameraBox").style.display="block";
+
+    if(html5Scanner){
+      try{ await html5Scanner.stop(); }catch(e){}
+      try{ html5Scanner.clear(); }catch(e){}
+      html5Scanner=null;
+    }
+
+    html5Scanner = new Html5Qrcode("qrReader");
+
+    await html5Scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      async decodedText => {
+        const code = String(decodedText || "").trim();
+        if(!code) return;
+
+        await stopScanner();
+        openCode(code);
+      },
+      errorMessage => {}
+    );
+  }catch(e){
+    alert("Camera blocked or scanner could not start. Use MANUAL INPUT.");
+  }
 }
-function stopScanner(){if(scanTimer){clearInterval(scanTimer);scanTimer=null} if(stream){stream.getTracks().forEach(t=>t.stop());stream=null} if($("cameraBox"))$("cameraBox").style.display="none"}
+
+async function stopScanner(){
+  if(scanTimer){clearInterval(scanTimer);scanTimer=null}
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+
+  if(html5Scanner){
+    try{ await html5Scanner.stop(); }catch(e){}
+    try{ html5Scanner.clear(); }catch(e){}
+    html5Scanner=null;
+  }
+
+  if($("cameraBox")) $("cameraBox").style.display="none";
+}
+
+
 
 $("file").addEventListener("change",e=>{let f=e.target.files&&e.target.files[0];if(!f){setStatus("No file chosen.");return}setStatus("Reading "+f.name+"...");let r=new FileReader();r.onload=()=>loadRouteText(r.result);r.onerror=()=>{setStatus("Could not read file.");alert("Could not read file")};r.readAsText(f)});
 $("meterBtn").addEventListener("click",startMeters);$("reportBtn").addEventListener("click",showReport);$("incomeBtn").addEventListener("click",startIncome);$("clearMetersBtn").addEventListener("click",resetMetersSafety);

@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Arcade Collection Terminal</title>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -44,11 +46,29 @@ button{min-height:44px}
 .key{font-size:30px}.keyText{font-size:17px}.hidden{display:none!important}
 textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;border:1px solid var(--line);border-radius:14px;padding:10px;user-select:text}
 #cameraBox{display:none;margin-top:10px;background:#000;border:3px solid var(--green);border-radius:22px;overflow:hidden;height:58vh;min-height:360px;box-shadow:0 0 0 4px rgba(34,197,94,.18)}
-#qrReader{width:100%;height:100%;background:#000}.scannerFullscreen .top,.scannerFullscreen .keypadWrap{display:none!important}.scannerFullscreen .main{padding:0!important}.scannerFullscreen .card{border-radius:0!important;border:0!important;padding:0!important;background:#000!important}.scannerFullscreen #scan .label,.scannerFullscreen #scan .title,.scannerFullscreen #scan .meta,.scannerFullscreen #scan .inputBox,.scannerFullscreen #scan .grid2,.scannerFullscreen #scan .list{display:none!important}.scannerFullscreen #cameraBox{display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;min-height:100vh!important;border:0!important;border-radius:0!important;z-index:9999!important;box-shadow:none!important}.scannerFullscreen #qrReader{width:100vw!important;height:100vh!important}.scannerFullscreen #cameraBox:after{content:'SCANNING...';position:fixed;left:0;right:0;bottom:26px;text-align:center;color:white;font-weight:900;font-size:20px;letter-spacing:2px;text-shadow:0 2px 8px #000}.scanTarget{position:relative}.scanTarget:after{content:'';position:absolute;left:50%;top:50%;width:72%;height:38%;transform:translate(-50%,-50%);border:4px solid rgba(34,197,94,.95);border-radius:22px;box-shadow:0 0 0 999px rgba(0,0,0,.18);pointer-events:none}.bigBarcode{font-size:54px!important;text-align:center;justify-content:center}.scanActive .title,.scanActive .meta,.scanActive .list{display:none!important}.scanActive .grid2{grid-template-columns:1fr}.scanActive #manualBtn{display:none!important}
+#qrReader{width:100%;height:100%;background:#000}.scannerFullscreen .top,.scannerFullscreen .keypadWrap{display:none!important}.scannerFullscreen .main{padding:0!important}.scannerFullscreen .card{border-radius:0!important;border:0!important;padding:0!important;background:#000!important}.scannerFullscreen #scan .label,.scannerFullscreen #scan .title,.scannerFullscreen #scan .meta,.scannerFullscreen #scan .inputBox,.scannerFullscreen #scan .grid2,.scannerFullscreen #scan .list{display:none!important}.scannerFullscreen #cameraBox{display:block!important;position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;min-height:100vh!important;border:0!important;border-radius:0!important;z-index:9999!important;box-shadow:none!important}.scannerFullscreen #qrReader{width:100vw!important;height:100vh!important}.scannerFullscreen #cameraBox:before{content:'ALIGN BARCODE IN GREEN STRIP';position:fixed;left:0;right:0;top:calc(44vh - 42px);z-index:10001;text-align:center;color:white;font-weight:900;font-size:17px;letter-spacing:1px;text-shadow:0 2px 8px #000}.scannerFullscreen #cameraBox:after{content:'SCANNING...';position:fixed;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom));text-align:center;color:white;font-weight:900;font-size:20px;letter-spacing:2px;text-shadow:0 2px 8px #000}.scanTarget{position:relative}.scanTarget:after{content:'';position:fixed;left:8vw;right:8vw;top:44vh;height:90px;border:4px solid rgba(34,197,94,.98);border-left:0;border-right:0;box-shadow:0 -44vh 0 999px rgba(0,0,0,.34),0 90px 0 999px rgba(0,0,0,.34);pointer-events:none;z-index:10000}.bigBarcode{font-size:54px!important;text-align:center;justify-content:center}.scanActive .title,.scanActive .meta,.scanActive .list{display:none!important}.scanActive .grid2{grid-template-columns:1fr}.scanActive #manualBtn{display:none!important}
 .meterSlots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .slot{background:#07101c;border:1px solid var(--line);border-radius:14px;padding:9px}
 .slot.active{border-color:var(--green);box-shadow:0 0 0 2px rgba(34,197,94,.22)}
 .slot span{display:block;color:var(--muted);font-size:11px}.slot b{font-size:18px}
+
+@media (orientation: landscape){
+  body:before{
+    content:"Please rotate to portrait";
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    background:#070b10;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:900;
+    text-align:center;
+    padding:30px;
+  }
+}
 </style>
 </head>
 <body>
@@ -178,7 +198,7 @@ function showReport(){let box=$("reportList");box.innerHTML="";$("csvBox").value
 function downloadCSV(){let blob=new Blob([makeCSV()],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="final_categorised_collection_report.csv";a.click()}
 function copyCSV(){navigator.clipboard.writeText(makeCSV()).then(()=>alert("Copied"))}
 function resetMetersSafety(){if(!clearMetersArmed){clearMetersArmed=true;$("clearMetersBtn").textContent="CONFIRM";$("clearMetersBtn").classList.remove("red");$("clearMetersBtn").classList.add("amber");setStatus("Press CONFIRM to clear saved meter readings.");setTimeout(()=>{if(clearMetersArmed){clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red")}},5000);return}Object.keys(entries).forEach(k=>{entries[k].meters=["","","",""];entries[k].meter="";entries[k].meterDone=false});clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red");save();renderPreview();setStatus("Saved meter readings cleared. Route remains loaded.")}
-async function startScanner(){if(barcode){openBarcode();return}if(typeof Html5Qrcode==="undefined"){alert("Scanner library has not loaded yet. Refresh or use MANUAL INPUT.");return}try{$("cameraBox").style.display="block";$("cameraBox").classList.add("scanTarget");document.body.classList.add("scanActive");document.body.classList.add("scannerFullscreen");if(html5Scanner){try{await html5Scanner.stop()}catch(e){}try{html5Scanner.clear()}catch(e){}html5Scanner=null}html5Scanner=new Html5Qrcode("qrReader");await html5Scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},async decodedText=>{let code=String(decodedText||"").trim();if(!code)return;if(navigator.vibrate)navigator.vibrate([80,40,80]);await stopScanner();openCode(code)},()=>{})}catch(e){alert("Camera blocked or scanner could not start. Use MANUAL INPUT.")}}
+async function startScanner(){if(barcode){openBarcode();return}if(typeof Html5Qrcode==="undefined"){alert("Scanner library has not loaded yet. Refresh or use MANUAL INPUT.");return}try{$("cameraBox").style.display="block";$("cameraBox").classList.add("scanTarget");document.body.classList.add("scanActive");document.body.classList.add("scannerFullscreen");if(html5Scanner){try{await html5Scanner.stop()}catch(e){}try{html5Scanner.clear()}catch(e){}html5Scanner=null}html5Scanner=new Html5Qrcode("qrReader");await html5Scanner.start({facingMode:"environment"},{fps:12,qrbox:{width:320,height:120}},async decodedText=>{let code=String(decodedText||"").trim();if(!code)return;if(navigator.vibrate)navigator.vibrate([80,40,80]);await stopScanner();openCode(code)},()=>{})}catch(e){alert("Camera blocked or scanner could not start. Use MANUAL INPUT.")}}
 async function stopScanner(){if(html5Scanner){try{await html5Scanner.stop()}catch(e){}try{html5Scanner.clear()}catch(e){}html5Scanner=null}if($("cameraBox")){$("cameraBox").style.display="none";$("cameraBox").classList.remove("scanTarget")}document.body.classList.remove("scanActive");document.body.classList.remove("scannerFullscreen")}
 
 $("file").addEventListener("change",e=>{let f=e.target.files&&e.target.files[0];if(!f){setStatus("No file chosen.");return}setStatus("Reading "+f.name+"...");let r=new FileReader();r.onload=()=>loadRouteText(r.result);r.onerror=()=>{setStatus("Could not read file.");alert("Could not read file")};r.readAsText(f)});

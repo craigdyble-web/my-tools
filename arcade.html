@@ -82,7 +82,7 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
       <div id="barcode" class="screen">
         <div class="label">Meter Input</div>
         <div class="title">Scan barcode</div>
-        <div class="meta">Enter or scan the Location code, then press OPEN.</div>
+        <div class="meta">Press SCAN to scan/enter a barcode, or MANUAL INPUT to type it with the keypad.</div>
         <div class="inputBox"><div id="barcodeValue" class="value">—</div></div>
         <div class="grid3">
           <button class="btn red" id="barcodeClear">CLEAR</button>
@@ -438,9 +438,21 @@ $("meterBtn").addEventListener("click",startMeters);
 $("reportBtn").addEventListener("click",showReport);
 $("incomeBtn").addEventListener("click",startIncome);
 $("clearInputBtn").addEventListener("click",resetMetersSafety);
-$("barcodeClear").addEventListener("click",()=>{barcode="";$("barcodeValue").textContent="—"});
-$("barcodeReport").addEventListener("click",showReport);
-$("barcodeOpen").addEventListener("click",openBarcode);
+$("barcodeScan").addEventListener("click",()=>{
+  // Temporary scanner behaviour: enter/scan the Location barcode, then open the matching machine immediately.
+  const code = prompt("Scan or enter barcode / Location code");
+  if(!code) return;
+  barcode = code;
+  $("barcodeValue").textContent = barcode;
+  openBarcode();
+});
+
+$("barcodeManual").addEventListener("click",()=>{
+  // Manual input uses the thumb keypad already on this screen.
+  barcode="";
+  $("barcodeValue").textContent="—";
+  alert("Type the barcode/location using the keypad, then press INPUT.");
+});
 $("scanAgainBtn").addEventListener("click",()=>{renderBarcode();show("barcode")});
 $("meterClear").addEventListener("click",()=>{meter="";$("meterValue").textContent="—"});
 $("meterInput").addEventListener("click",saveMeter);

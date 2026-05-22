@@ -8,7 +8,7 @@
 :root{--bg:#070b10;--panel:#101923;--text:#f8fafc;--muted:#94a3b8;--line:#334155;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--blue:#38bdf8}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
-button,input{font-family:inherit}
+button,input{font-family:inherit;touch-action:manipulation;cursor:pointer}button{min-height:44px}
 .app{height:100vh;display:grid;grid-template-rows:auto 1fr auto}
 .top{padding:10px 12px;background:#05080c;border-bottom:1px solid var(--line)}
 .topRow{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin-bottom:8px}
@@ -17,17 +17,14 @@ button,input{font-family:inherit}
 .progress span{display:block;height:100%;width:0%;background:var(--green)}
 .main{padding:10px;overflow:hidden}
 .card{height:100%;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:14px;overflow:hidden}
-.screen{display:none;height:100%;flex-direction:column}
-.screen.active{display:flex}
+.screen{display:none;height:100%;flex-direction:column}.screen.active{display:flex}
 .label{color:var(--blue);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.6px}
 .title{font-size:31px;font-weight:950;line-height:1.05;margin-top:8px}
 .meta{margin-top:7px;color:var(--muted);font-size:14px;line-height:1.35}
 .inputBox{margin-top:12px;height:88px;background:#07101c;border:3px solid var(--green);border-radius:22px;display:flex;align-items:center;padding:0 18px;box-shadow:0 0 0 4px rgba(34,197,94,.18)}
 .value{font-size:44px;font-weight:950;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.list{margin-top:10px;overflow:auto;padding-bottom:10px}
-.row{background:#07101c;border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px}
-.row b{display:block;font-size:15px}
-.row span{color:var(--muted);font-size:12px}
+.list{margin-top:10px;overflow:auto;padding-bottom:10px}.row{background:#07101c;border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px}
+.row b{display:block;font-size:15px}.row span{color:var(--muted);font-size:12px}
 .btn,.key{border:2px solid #475569;border-radius:20px;background:linear-gradient(180deg,#334155,#1e293b);color:var(--text);font-weight:950;box-shadow:0 6px 0 #020617,0 10px 18px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.08)}
 .btn:active,.key:active{transform:translateY(4px);box-shadow:0 2px 0 #020617,0 5px 10px rgba(0,0,0,.35)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
@@ -41,10 +38,10 @@ button,input{font-family:inherit}
 .status{margin-top:10px;color:var(--muted);font-size:13px;background:#07101c;border:1px solid var(--line);border-radius:14px;padding:10px}
 .keypadWrap{padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:#030507;border-top:1px solid var(--line)}
 .keypad{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,72px);gap:8px}
-.key{font-size:30px}
-.keyText{font-size:17px}
-.hidden{display:none}
+.key{font-size:30px}.keyText{font-size:17px}.hidden{display:none}
 textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;border:1px solid var(--line);border-radius:14px;padding:10px;user-select:text}
+#cameraBox{display:none;margin-top:10px;background:#000;border:1px solid var(--line);border-radius:18px;overflow:hidden;height:180px}
+#video{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
@@ -54,106 +51,89 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
     <div class="progress"><span id="bar"></span></div>
   </div>
 
-  <main class="main">
-    <section class="card">
-
-      <div id="home" class="screen active">
-        <div class="label">Route Upload</div>
-        <div class="title">Load route</div>
-        <div class="meta">CSV columns needed: <b>Type, Name, Location</b>. Location is used as the barcode.</div>
-
-        <input id="file" class="fileInput" type="file" accept=".csv,text/csv,.txt">
-
-        <div class="grid2">
-          <button class="btn green" id="meterBtn">METER INPUT</button>
-          <button class="btn amber" id="reportBtn">REPORT</button>
-        </div>
-
-        <div class="grid3">
-          <button class="btn red" id="clearInputBtn">CLEAR METERS</button>
-          <button class="btn green" id="incomeBtn" disabled style="opacity:.35">INCOME</button>
-          
-        </div>
-
-        <div id="status" class="status">No route loaded.</div>
-        <div id="preview" class="list"></div>
+  <main class="main"><section class="card">
+    <div id="home" class="screen active">
+      <div class="label">Route Upload</div>
+      <div class="title">Load route</div>
+      <div class="meta">CSV columns needed: <b>Type, Name, Location</b>. Location is used as the barcode.</div>
+      <input id="file" class="fileInput" type="file" accept=".csv,text/csv,.txt">
+      <div class="grid2">
+        <button class="btn green" id="meterBtn">METER INPUT</button>
+        <button class="btn amber" id="reportBtn">REPORT</button>
       </div>
-
-      <div id="barcode" class="screen">
-        <div class="label">Meter Input</div>
-        <div class="title">Scan barcode</div>
-        <div class="meta">Press SCAN to scan/enter a barcode, or MANUAL INPUT to type it with the keypad.</div>
-        <div class="inputBox"><div id="barcodeValue" class="value">—</div></div>
-        <div class="grid3">
-          <button class="btn red" id="barcodeClear">CLEAR</button>
-          <button class="btn amber" id="barcodeReport">REPORT</button>
-          <button class="btn green" id="barcodeOpen">OPEN</button>
-        </div>
-        <div id="barcodeList" class="list"></div>
+      <div class="grid2">
+        <button class="btn red" id="clearMetersBtn">CLEAR METERS</button>
+        <button class="btn green" id="incomeBtn" disabled style="opacity:.35">INCOME</button>
       </div>
+      <div id="status" class="status">No route loaded.</div>
+      <div id="preview" class="list"></div>
+    </div>
 
-      <div id="meter" class="screen">
-        <div class="label" id="machineType">Type</div>
-        <div class="title" id="machineName">Machine</div>
-        <div class="meta" id="machineLocation">Location</div>
-        <div class="meta">Enter meter reading</div>
-        <div class="inputBox"><div id="meterValue" class="value">—</div></div>
-        <div class="grid3">
-          <button class="btn amber" id="scanAgainBtn">SCAN</button>
-          <button class="btn red" id="meterClear">CLEAR</button>
-          <button class="btn green" id="meterInput">INPUT</button>
-        </div>
+    <div id="barcode" class="screen">
+      <div class="label">Meter Input</div>
+      <div class="title">Scan barcode</div>
+      <div class="meta">Scan the Location code to load the machine. Use manual input if needed.</div>
+      <div class="inputBox"><div id="barcodeValue" class="value">—</div></div>
+      <div id="cameraBox"><video id="video" playsinline muted></video></div>
+      <div class="grid2">
+        <button class="btn green" id="scanBtn">SCAN</button>
+        <button class="btn amber" id="manualBtn">MANUAL INPUT</button>
       </div>
+      <div id="barcodeList" class="list"></div>
+    </div>
 
-      <div id="income" class="screen">
-        <div class="label" id="incomeType">Type</div>
-        <div class="title" id="incomeName">Machine</div>
-        <div class="meta" id="incomeLocation">Location</div>
-        <div class="meta">Enter income</div>
-        <div class="inputBox"><div id="incomeValue" class="value">—</div></div>
-        <div class="grid3">
-          <button class="btn amber" id="incomeBack">BACK</button>
-          <button class="btn red" id="incomeClear">CLEAR</button>
-          <button class="btn green" id="incomeInput">INPUT</button>
-        </div>
+    <div id="meter" class="screen">
+      <div class="label" id="machineType">Type</div>
+      <div class="title" id="machineName">Machine</div>
+      <div class="meta" id="machineLocation">Location</div>
+      <div class="meta">Enter meter reading</div>
+      <div class="inputBox"><div id="meterValue" class="value">—</div></div>
+      <div class="grid2">
+        <button class="btn amber" id="scanAgainBtn">SCAN NEXT</button>
+        <button class="btn green" id="meterInput">INPUT</button>
       </div>
+    </div>
 
-      <div id="report" class="screen">
-        <div class="label">Report</div>
-        <div class="title">Meters + income</div>
-        <div class="meta">Final output with Type, Name, Location, Meter and Income.</div>
-        <div class="grid3">
-          <button class="btn blue" id="reportBack">BACK</button>
-          <button class="btn green" id="downloadBtn">CSV</button>
-          <button class="btn amber" id="copyBtn">COPY</button>
-        </div>
-        <textarea id="csvBox" readonly></textarea>
-        <div id="reportList" class="list"></div>
+    <div id="income" class="screen">
+      <div class="label" id="incomeType">Type</div>
+      <div class="title" id="incomeName">Machine</div>
+      <div class="meta" id="incomeLocation">Location</div>
+      <div class="meta">Enter income</div>
+      <div class="inputBox"><div id="incomeValue" class="value">—</div></div>
+      <div class="grid2">
+        <button class="btn amber" id="incomeBack">BACK</button>
+        <button class="btn green" id="incomeInput">INPUT</button>
       </div>
+    </div>
 
-    </section>
-  </main>
+    <div id="report" class="screen">
+      <div class="label">Report</div>
+      <div class="title">Meters + income</div>
+      <div class="meta">Final output with Type, Name, Location, Meter and Income.</div>
+      <div class="grid3">
+        <button class="btn blue" id="reportBack">BACK</button>
+        <button class="btn green" id="downloadBtn">CSV</button>
+        <button class="btn amber" id="copyBtn">COPY</button>
+      </div>
+      <textarea id="csvBox" readonly></textarea>
+      <div id="reportList" class="list"></div>
+    </div>
+  </section></main>
 
   <div id="keypad" class="keypadWrap hidden">
     <div class="keypad">
       <button class="key num" data-v="1">1</button><button class="key num" data-v="2">2</button><button class="key num" data-v="3">3</button><button class="key red keyText" id="backspace">⌫</button>
-      <button class="key num" data-v="4">4</button><button class="key num" data-v="5">5</button><button class="key num" data-v="6">6</button><button class="key amber keyText" id="skipBtn">SKIP</button>
-      <button class="key num" data-v="7">7</button><button class="key num" data-v="8">8</button><button class="key num" data-v="9">9</button><button class="key blue keyText" id="stageBtn">STAGE</button>
+      <button class="key num" data-v="4">4</button><button class="key num" data-v="5">5</button><button class="key num" data-v="6">6</button><button class="key blue keyText" id="homeKey">HOME</button>
+      <button class="key num" data-v="7">7</button><button class="key num" data-v="8">8</button><button class="key num" data-v="9">9</button><button class="key amber keyText" id="scanKey">SCAN</button>
       <button class="key num" data-v=".">.</button><button class="key num" data-v="0">0</button><button class="key red keyText" id="clearKey">CLEAR</button><button class="key green keyText" id="mainInput">INPUT</button>
     </div>
   </div>
 </div>
 
 <script>
-let route=[];
-let entries={};
-let current=-1;
-let clearMetersArmed=false;
-let activeScreen="home";
-let barcode="";
-let meter="";
-let income="";
-let incomeIndex=0;
+let lastTouch=0;document.addEventListener("touchend",e=>{const now=Date.now();if(now-lastTouch<250){e.preventDefault()}lastTouch=now},{passive:false});
+let route=[], entries={}, current=-1, activeScreen="home", barcode="", meter="", income="", incomeIndex=0;
+let clearMetersArmed=false, stream=null, scanTimer=null;
 
 function $(id){return document.getElementById(id)}
 function setStatus(t){$("status").textContent=t}
@@ -163,27 +143,23 @@ function key(i){return route[i].location+"_"+route[i].name}
 function ent(i){let k=key(i);if(!entries[k])entries[k]={meter:"",income:"",meterDone:false,incomeDone:false};return entries[k]}
 
 function show(id){
+  stopScanner();
   ["home","barcode","meter","income","report"].forEach(s=>$(s).classList.remove("active"));
   $(id).classList.add("active");
   activeScreen=id;
   $("keypad").classList.toggle("hidden",!(id==="barcode"||id==="meter"||id==="income"));
-  updateTop();
-  save();
+  updateTop(); save();
 }
-
 function updateTop(){
   let total=route.length,done=0,label="Route Upload";
   if(activeScreen==="barcode"||activeScreen==="meter"){label="Meter Input";done=route.filter((_,i)=>ent(i).meterDone).length}
   if(activeScreen==="income"){label="Income Input";done=route.filter((_,i)=>ent(i).incomeDone).length}
   if(activeScreen==="report"){label="Report";done=route.filter((_,i)=>ent(i).meterDone).length}
-  $("stageText").textContent=label;
-  $("countText").textContent=done+" / "+total;
+  $("stageText").textContent=label; $("countText").textContent=done+" / "+total;
   $("bar").style.width=total?((done/total)*100)+"%":"0%";
   let ready=route.length>0 && route.every((_,i)=>ent(i).meterDone);
-  $("incomeBtn").disabled=!ready;
-  $("incomeBtn").style.opacity=ready?"1":".35";
+  $("incomeBtn").disabled=!ready; $("incomeBtn").style.opacity=ready?"1":".35";
 }
-
 function parseCSV(text){
   text=text.replace(/^\uFEFF/,"");
   let rows=[],row=[],cell="",q=false;
@@ -192,286 +168,82 @@ function parseCSV(text){
     if(c=='"'&&q&&n=='"'){cell+='"';i++}
     else if(c=='"'){q=!q}
     else if(c===","&&!q){row.push(cell);cell=""}
-    else if((c==="\n"||c==="\r")&&!q){
-      if(cell!==""||row.length){row.push(cell);rows.push(row);row=[];cell=""}
-      if(c==="\r"&&n==="\n")i++;
-    }else{cell+=c}
+    else if((c==="\n"||c==="\r")&&!q){if(cell!==""||row.length){row.push(cell);rows.push(row);row=[];cell=""} if(c==="\r"&&n==="\n")i++}
+    else cell+=c;
   }
   if(cell!==""||row.length){row.push(cell);rows.push(row)}
   return rows;
 }
-
 function norm(s){return String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"")}
 function findHeader(headers,names){return headers.findIndex(h=>names.some(n=>norm(h)===norm(n)))}
-
 function loadRouteText(text){
   let rows=parseCSV(text).filter(r=>r.some(c=>String(c).trim()));
   if(rows.length<2){setStatus("Not loaded: CSV has no rows.");alert("CSV needs headings and rows");return}
-  let h=rows[0];
-  let iType=findHeader(h,["Type","Category","Cat","Section"]);
-  let iName=findHeader(h,["Name","Machine","MachineName"]);
-  let iLocation=findHeader(h,["Location","Loc","Barcode","Code","QR"]);
-
-  if(iName<0||iLocation<0){
-    setStatus("Not loaded: headings must include Name and Location.");
-    alert("CSV must include Name and Location columns");
-    return;
-  }
-
-  route=rows.slice(1).map((r,n)=>{
-    let location=String(r[iLocation]||"").trim();
-    return {
-      type:iType>=0?String(r[iType]||"").trim():"Machine",
-      name:String(r[iName]||("Machine "+(n+1))).trim(),
-      location:location||String(n+1)
-    };
-  }).filter(m=>m.name&&m.location);
-
-  entries={};
-  save();
-  renderPreview();
-  setStatus(route.length+" machines loaded. Location is barcode.");
-  alert(route.length+" machines loaded");
+  let h=rows[0], iType=findHeader(h,["Type","Category","Cat","Section"]), iName=findHeader(h,["Name","Machine","MachineName"]), iLocation=findHeader(h,["Location","Loc","Barcode","Code","QR"]);
+  if(iName<0||iLocation<0){setStatus("Not loaded: headings must include Name and Location.");alert("CSV must include Name and Location columns");return}
+  route=rows.slice(1).map((r,n)=>({type:iType>=0?String(r[iType]||"").trim():"Machine",name:String(r[iName]||("Machine "+(n+1))).trim(),location:String(r[iLocation]||String(n+1)).trim()})).filter(m=>m.name&&m.location);
+  entries={}; save(); renderPreview(); setStatus(route.length+" machines loaded. Location is barcode."); alert(route.length+" machines loaded");
 }
-
 function renderPreview(){
-  let box=$("preview");
-  box.innerHTML="";
+  let box=$("preview"); box.innerHTML="";
   if(!route.length){box.innerHTML='<div class="row"><b>No route loaded</b><span>CSV needs Type, Name, Location.</span></div>';updateTop();return}
-  route.forEach((m,i)=>{
-    let e=ent(i);
-    let div=document.createElement("div");
-    div.className="row";
-    div.innerHTML="<b>"+m.location+" - "+m.name+"</b><span>"+m.type+" • Meter: "+(e.meter||"—")+" • Income: "+(e.income||"—")+"</span>";
-    box.appendChild(div);
-  });
+  route.forEach((m,i)=>{let e=ent(i),div=document.createElement("div");div.className="row";div.innerHTML="<b>"+m.location+" - "+m.name+"</b><span>"+m.type+" • Meter: "+(e.meter||"—")+" • Income: "+(e.income||"—")+"</span>";box.appendChild(div)});
   updateTop();
 }
-
-function startMeters(){
-  if(!route.length){alert("Upload route first");return}
-  barcode="";
-  renderBarcode();
-  show("barcode");
-}
-
+function startMeters(){if(!route.length){alert("Upload route first");return} barcode=""; renderBarcode(); show("barcode")}
 function renderBarcode(){
-  $("barcodeValue").textContent=barcode||"—";
-  let box=$("barcodeList");
-  box.innerHTML="";
+  $("barcodeValue").textContent=barcode||"—"; let box=$("barcodeList"); box.innerHTML="";
   let missing=route.filter((_,i)=>!ent(i).meterDone).length;
   box.innerHTML='<div class="row"><b>Scan next barcode</b><span>'+missing+' machines still need meters.</span></div>';
-  route.forEach((m,i)=>{
-    let e=ent(i);
-    let d=document.createElement("div");
-    d.className="row";
-    d.innerHTML="<b>"+m.location+" - "+m.name+"</b><span>"+m.type+" • "+(e.meterDone?"DONE":"MISSING")+" • Meter: "+(e.meter||"—")+"</span>";
-    box.appendChild(d);
-  });
+  route.forEach((m,i)=>{let e=ent(i),d=document.createElement("div");d.className="row";d.innerHTML="<b>"+m.location+" - "+m.name+"</b><span>"+m.type+" • "+(e.meterDone?"DONE":"MISSING")+" • Meter: "+(e.meter||"—")+"</span>";box.appendChild(d)});
 }
-
-function openBarcode(){
-  if(!barcode){alert("Enter/scan barcode");return}
-  let code=norm(barcode);
-  let i=route.findIndex(m=>norm(m.location)===code||norm("LOC"+m.location)===code);
-  if(i<0){alert("No machine found: "+barcode);return}
-  current=i;
-  meter=ent(i).meter||"";
-  $("machineType").textContent=route[i].type;
-  $("machineName").textContent=route[i].name;
-  $("machineLocation").textContent="Location / barcode: "+route[i].location;
-  $("meterValue").textContent=meter||"—";
+function openCode(code){
+  if(!code){alert("Enter or scan barcode");return}
+  let clean=norm(code), i=route.findIndex(m=>norm(m.location)===clean||norm("LOC"+m.location)===clean);
+  if(i<0){alert("No machine found: "+code);return}
+  current=i; meter=ent(i).meter||"";
+  $("machineType").textContent=route[i].type; $("machineName").textContent=route[i].name; $("machineLocation").textContent="Location / barcode: "+route[i].location; $("meterValue").textContent=meter||"—";
   show("meter");
 }
-
-function saveMeter(){
-  if(current<0)return;
-  let e=ent(current);
-  e.meter=meter;
-  e.meterDone=true;
-  barcode="";
-  save();
-  renderBarcode();
-  show("barcode");
-}
-
-function startIncome(){
-  if(!route.length){alert("Upload route first");return}
-  if(!route.every((_,i)=>ent(i).meterDone)){alert("Finish meter input first");return}
-  incomeIndex=0;
-  openIncome();
-}
-
-function openIncome(){
-  if(incomeIndex>=route.length){showReport();return}
-  current=incomeIndex;
-  income=ent(current).income||"";
-  $("incomeType").textContent=route[current].type;
-  $("incomeName").textContent=route[current].name;
-  $("incomeLocation").textContent="Machine "+(incomeIndex+1)+" of "+route.length+" • Location "+route[current].location;
-  $("incomeValue").textContent=income||"—";
-  show("income");
-}
-
-function saveIncome(){
-  let e=ent(current);
-  e.income=income;
-  e.incomeDone=true;
-  incomeIndex++;
-  save();
-  openIncome();
-}
-
-function appendVal(v){
-  if(activeScreen==="barcode"){barcode+=v;$("barcodeValue").textContent=barcode||"—"}
-  if(activeScreen==="meter"){if(v==="."&&meter.includes("."))return;meter+=v;$("meterValue").textContent=meter||"—"}
-  if(activeScreen==="income"){if(v==="."&&income.includes("."))return;income+=v;$("incomeValue").textContent=income||"—"}
-}
-
-function backspace(){
-  if(activeScreen==="barcode"){barcode=barcode.slice(0,-1);$("barcodeValue").textContent=barcode||"—"}
-  if(activeScreen==="meter"){meter=meter.slice(0,-1);$("meterValue").textContent=meter||"—"}
-  if(activeScreen==="income"){income=income.slice(0,-1);$("incomeValue").textContent=income||"—"}
-}
-
-function clearActive(){
-  if(activeScreen==="barcode"){barcode="";$("barcodeValue").textContent="—"}
-  if(activeScreen==="meter"){meter="";$("meterValue").textContent="—"}
-  if(activeScreen==="income"){income="";$("incomeValue").textContent="—"}
-}
-
+function openBarcode(){openCode(barcode)}
+function saveMeter(){if(current<0)return;let e=ent(current);e.meter=meter;e.meterDone=true;barcode="";save();renderBarcode();show("barcode")}
+function startIncome(){if(!route.length){alert("Upload route first");return} if(!route.every((_,i)=>ent(i).meterDone)){alert("Finish meter input first");return} incomeIndex=0; openIncome()}
+function openIncome(){if(incomeIndex>=route.length){showReport();return} current=incomeIndex; income=ent(current).income||""; $("incomeType").textContent=route[current].type; $("incomeName").textContent=route[current].name; $("incomeLocation").textContent="Machine "+(incomeIndex+1)+" of "+route.length+" • Location "+route[current].location; $("incomeValue").textContent=income||"—"; show("income")}
+function saveIncome(){let e=ent(current);e.income=income;e.incomeDone=true;incomeIndex++;save();openIncome()}
+function appendVal(v){if(activeScreen==="barcode"){barcode+=v;$("barcodeValue").textContent=barcode||"—"}else if(activeScreen==="meter"){if(v==="."&&meter.includes("."))return;meter+=v;$("meterValue").textContent=meter||"—"}else if(activeScreen==="income"){if(v==="."&&income.includes("."))return;income+=v;$("incomeValue").textContent=income||"—"}}
+function backspace(){if(activeScreen==="barcode"){barcode=barcode.slice(0,-1);$("barcodeValue").textContent=barcode||"—"}else if(activeScreen==="meter"){meter=meter.slice(0,-1);$("meterValue").textContent=meter||"—"}else if(activeScreen==="income"){income=income.slice(0,-1);$("incomeValue").textContent=income||"—"}}
+function clearActive(){if(activeScreen==="barcode"){barcode="";$("barcodeValue").textContent="—"}else if(activeScreen==="meter"){meter="";$("meterValue").textContent="—"}else if(activeScreen==="income"){income="";$("incomeValue").textContent="—"}}
+function mainInput(){if(activeScreen==="barcode")openBarcode();else if(activeScreen==="meter")saveMeter();else if(activeScreen==="income")saveIncome()}
+function rows(){return route.map((m,i)=>{let e=ent(i);return {Type:m.type,Name:m.name,Location:m.location,Meter:e.meter,Income:e.income,Status:e.meterDone&&e.incomeDone?"DONE":e.meterDone?"METER ONLY":"MISSING"}})}
+function makeCSV(){let r=rows();if(!r.length)return"";let h=Object.keys(r[0]);return [h.join(",")].concat(r.map(row=>h.map(k=>'"'+String(row[k]||"").replaceAll('"','""')+'"').join(","))).join("\n")}
+function showReport(){ $("csvBox").value=makeCSV(); let box=$("reportList"); box.innerHTML=""; rows().forEach(r=>{let d=document.createElement("div");d.className="row";d.innerHTML="<b>"+r.Location+" - "+r.Name+"</b><span>"+r.Type+" • Meter: "+(r.Meter||"—")+" • Income: "+(r.Income||"—")+" • "+r.Status+"</span>";box.appendChild(d)}); show("report")}
+function downloadCSV(){let blob=new Blob([makeCSV()],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="meters_income_output.csv";a.click()}
+function copyCSV(){navigator.clipboard.writeText(makeCSV()).then(()=>alert("Copied"))}
 function resetMetersSafety(){
-  const btn=$("clearInputBtn");
-
-  if(!clearMetersArmed){
-    clearMetersArmed=true;
-    btn.textContent="CONFIRM";
-    btn.classList.remove("red");
-    btn.classList.add("amber");
-    setStatus("Press CONFIRM to clear all saved meter readings. Income and route stay loaded.");
-
-    setTimeout(()=>{
-      if(clearMetersArmed){
-        clearMetersArmed=false;
-        btn.textContent="CLEAR METERS";
-        btn.classList.remove("amber");
-        btn.classList.add("red");
-        setStatus(route.length ? route.length+" machines loaded. Barcode = Location." : "No route loaded.");
-      }
-    },5000);
-
-    return;
-  }
-
-  Object.keys(entries).forEach(k=>{
-    entries[k].meter="";
-    entries[k].meterDone=false;
-  });
-
-  clearMetersArmed=false;
-  btn.textContent="CLEAR METERS";
-  btn.classList.remove("amber");
-  btn.classList.add("red");
-
-  save();
-  renderPreview();
-  setStatus("Saved meter readings cleared. Route remains loaded.");
+  if(!clearMetersArmed){clearMetersArmed=true;$("clearMetersBtn").textContent="CONFIRM";$("clearMetersBtn").classList.remove("red");$("clearMetersBtn").classList.add("amber");setStatus("Press CONFIRM to clear saved meter readings.");setTimeout(()=>{if(clearMetersArmed){clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red")}},5000);return}
+  Object.keys(entries).forEach(k=>{entries[k].meter="";entries[k].meterDone=false});clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red");save();renderPreview();setStatus("Saved meter readings cleared. Route remains loaded.");
 }
-
-function mainInput(){
-  if(activeScreen==="barcode")openBarcode();
-  if(activeScreen==="meter")saveMeter();
-  if(activeScreen==="income")saveIncome();
+async function startScanner(){
+  if(barcode){openBarcode();return}
+  if(!("BarcodeDetector" in window)||!navigator.mediaDevices){alert("Camera scanner not supported here. Use MANUAL INPUT.");return}
+  try{
+    $("cameraBox").style.display="block"; stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});$("video").srcObject=stream;await $("video").play();
+    const detector=new BarcodeDetector({formats:["qr_code","code_128","ean_13","ean_8"]});
+    scanTimer=setInterval(async()=>{try{const codes=await detector.detect($("video")); if(codes.length){let raw=codes[0].rawValue; stopScanner(); openCode(raw)}}catch(e){}},350);
+  }catch(e){alert("Camera blocked. Use MANUAL INPUT.");}
 }
+function stopScanner(){if(scanTimer){clearInterval(scanTimer);scanTimer=null} if(stream){stream.getTracks().forEach(t=>t.stop());stream=null} if($("cameraBox"))$("cameraBox").style.display="none"}
 
-function rows(){
-  return route.map((m,i)=>{
-    let e=ent(i);
-    return {Type:m.type,Name:m.name,Location:m.location,Meter:e.meter,Income:e.income,Status:e.meterDone&&e.incomeDone?"DONE":e.meterDone?"METER ONLY":"MISSING"};
-  });
-}
+$("file").addEventListener("change",e=>{let f=e.target.files&&e.target.files[0];if(!f){setStatus("No file chosen.");return}setStatus("Reading "+f.name+"...");let r=new FileReader();r.onload=()=>loadRouteText(r.result);r.onerror=()=>{setStatus("Could not read file.");alert("Could not read file")};r.readAsText(f)});
+$("meterBtn").addEventListener("click",startMeters);$("reportBtn").addEventListener("click",showReport);$("incomeBtn").addEventListener("click",startIncome);$("clearMetersBtn").addEventListener("click",resetMetersSafety);
+$("scanBtn").addEventListener("click",startScanner);$("manualBtn").addEventListener("click",()=>{let code=prompt("Enter barcode / Location code"); if(code)openCode(code)});
+$("scanAgainBtn").addEventListener("click",()=>{renderBarcode();show("barcode")});$("meterInput").addEventListener("click",saveMeter);
+$("incomeBack").addEventListener("click",()=>show("home"));$("incomeInput").addEventListener("click",saveIncome);
+$("reportBack").addEventListener("click",()=>show("home"));$("downloadBtn").addEventListener("click",downloadCSV);$("copyBtn").addEventListener("click",copyCSV);
+document.querySelectorAll(".num").forEach(b=>b.addEventListener("click",()=>appendVal(b.dataset.v)));$("backspace").addEventListener("click",backspace);$("clearKey").addEventListener("click",clearActive);$("mainInput").addEventListener("click",mainInput);
+$("homeKey").addEventListener("click",()=>show("home"));$("scanKey").addEventListener("click",()=>{if(activeScreen==="meter"){renderBarcode();show("barcode")}else if(activeScreen==="barcode"){startScanner()}else{startMeters()}});
 
-function makeCSV(){
-  let r=rows();
-  if(!r.length)return"";
-  let h=Object.keys(r[0]);
-  return [h.join(",")].concat(r.map(row=>h.map(k=>'"'+String(row[k]||"").replaceAll('"','""')+'"').join(","))).join("\n");
-}
-
-function showReport(){
-  $("csvBox").value=makeCSV();
-  let box=$("reportList");
-  box.innerHTML="";
-  rows().forEach(r=>{
-    let d=document.createElement("div");
-    d.className="row";
-    d.innerHTML="<b>"+r.Location+" - "+r.Name+"</b><span>"+r.Type+" • Meter: "+(r.Meter||"—")+" • Income: "+(r.Income||"—")+" • "+r.Status+"</span>";
-    box.appendChild(d);
-  });
-  show("report");
-}
-
-function downloadCSV(){
-  let blob=new Blob([makeCSV()],{type:"text/csv"});
-  let a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="meters_income_output.csv";
-  a.click();
-}
-
-function copyCSV(){
-  navigator.clipboard.writeText(makeCSV()).then(()=>alert("Copied"));
-}
-
-$("file").addEventListener("change",e=>{
-  let f=e.target.files && e.target.files[0];
-  if(!f){setStatus("No file chosen.");return}
-  setStatus("Reading "+f.name+"...");
-  let r=new FileReader();
-  r.onload=()=>loadRouteText(r.result);
-  r.onerror=()=>{setStatus("Could not read file.");alert("Could not read file")};
-  r.readAsText(f);
-});
-
-
-$("meterBtn").addEventListener("click",startMeters);
-$("reportBtn").addEventListener("click",showReport);
-$("incomeBtn").addEventListener("click",startIncome);
-$("clearInputBtn").addEventListener("click",resetMetersSafety);
-$("barcodeScan").addEventListener("click",()=>{
-  // Temporary scanner behaviour: enter/scan the Location barcode, then open the matching machine immediately.
-  const code = prompt("Scan or enter barcode / Location code");
-  if(!code) return;
-  barcode = code;
-  $("barcodeValue").textContent = barcode;
-  openBarcode();
-});
-
-$("barcodeManual").addEventListener("click",()=>{
-  // Manual input uses the thumb keypad already on this screen.
-  barcode="";
-  $("barcodeValue").textContent="—";
-  alert("Type the barcode/location using the keypad, then press INPUT.");
-});
-$("scanAgainBtn").addEventListener("click",()=>{renderBarcode();show("barcode")});
-$("meterClear").addEventListener("click",()=>{meter="";$("meterValue").textContent="—"});
-$("meterInput").addEventListener("click",saveMeter);
-$("incomeBack").addEventListener("click",()=>show("home"));
-$("incomeClear").addEventListener("click",()=>{income="";$("incomeValue").textContent="—"});
-$("incomeInput").addEventListener("click",saveIncome);
-$("reportBack").addEventListener("click",()=>show("home"));
-$("downloadBtn").addEventListener("click",downloadCSV);
-$("copyBtn").addEventListener("click",copyCSV);
-document.querySelectorAll(".num").forEach(b=>b.addEventListener("click",()=>appendVal(b.dataset.v)));
-$("backspace").addEventListener("click",backspace);
-$("clearKey").addEventListener("click",clearActive);
-$("mainInput").addEventListener("click",mainInput);
-$("skipBtn").addEventListener("click",()=>{if(activeScreen==="meter"){meter="";saveMeter()}else if(activeScreen==="income"){incomeIndex++;openIncome()}});
-$("stageBtn").addEventListener("click",()=>{if(activeScreen==="barcode")startIncome();else show("home")});
-
-loadSaved();
-renderPreview();
-show("home");
+loadSaved();renderPreview();show("home");
 </script>
 </body>
 </html>

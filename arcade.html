@@ -55,8 +55,8 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
     <div id="home" class="screen active">
       <div class="label">Route Upload</div>
       <div class="title">Load route</div>
-      <div class="meta">CSV columns needed: <b>Type, Name, Location</b>. Location is used as the barcode.</div>
-      <input id="file" class="fileInput" type="file" accept=".csv,text/csv,.txt">
+      <div class="meta">Upload CSV <b>Type, Name, Location</b> or the Overall Collection RTF form. Location becomes the barcode.</div>
+      <input id="file" class="fileInput" type="file" accept=".csv,text/csv,.txt,.rtf,application/rtf">
       <div class="grid2">
         <button class="btn green" id="meterBtn">METER INPUT</button>
         <button class="btn amber" id="reportBtn">REPORT</button>
@@ -76,7 +76,7 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
       <div class="inputBox"><div id="barcodeValue" class="value">—</div></div>
       <div id="cameraBox"><video id="video" playsinline muted></video></div>
       <div class="grid2">
-        <button class="btn green" id="scanBtn">SCAN</button>
+        <button class="btn green" id="scanBtn">SCAN BARCODE</button>
         <button class="btn amber" id="manualBtn">MANUAL INPUT</button>
       </div>
       <div id="barcodeList" class="list"></div>
@@ -86,8 +86,9 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
       <div class="label" id="machineType">Type</div>
       <div class="title" id="machineName">Machine</div>
       <div class="meta" id="machineLocation">Location</div>
-      <div class="meta">Enter meter reading</div>
+      <div class="meta" id="meterPrompt">Enter meter 1 of 4</div>
       <div class="inputBox"><div id="meterValue" class="value">—</div></div>
+      <div id="meterSlots" class="list"></div>
       <div class="grid2">
         <button class="btn amber" id="scanAgainBtn">SCAN NEXT</button>
         <button class="btn green" id="meterInput">INPUT</button>
@@ -132,7 +133,7 @@ textarea{width:100%;height:150px;margin-top:10px;background:#07101c;color:white;
 
 <script>
 let lastTouch=0;document.addEventListener("touchend",e=>{const now=Date.now();if(now-lastTouch<250){e.preventDefault()}lastTouch=now},{passive:false});
-let route=[], entries={}, current=-1, activeScreen="home", barcode="", meter="", income="", incomeIndex=0;
+let route=[], entries={}, current=-1, activeScreen="home", barcode="", meter="", income="", incomeIndex=0, meterSlot=0;
 let clearMetersArmed=false, stream=null, scanTimer=null;
 
 function $(id){return document.getElementById(id)}
@@ -140,7 +141,7 @@ function setStatus(t){$("status").textContent=t}
 function save(){localStorage.setItem("arc_route_clean",JSON.stringify(route));localStorage.setItem("arc_entries_clean",JSON.stringify(entries))}
 function loadSaved(){try{route=JSON.parse(localStorage.getItem("arc_route_clean")||"[]");entries=JSON.parse(localStorage.getItem("arc_entries_clean")||"{}")}catch(e){route=[];entries={}}}
 function key(i){return route[i].location+"_"+route[i].name}
-function ent(i){let k=key(i);if(!entries[k])entries[k]={meter:"",income:"",meterDone:false,incomeDone:false};return entries[k]}
+function ent(i){let k=key(i);if(!entries[k])entries[k]={meters:["","","",""],meter:"",income:"",meterDone:false,incomeDone:false};if(!entries[k].meters){entries[k].meters=[entries[k].meter||"","","",""]}return entries[k]}
 
 function show(id){
   stopScanner();
@@ -176,6 +177,66 @@ function parseCSV(text){
 }
 function norm(s){return String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"")}
 function findHeader(headers,names){return headers.findIndex(h=>names.some(n=>norm(h)===norm(n)))}
+
+function rtfToPlainText(rtf){
+  let s = String(rtf||"");
+  s = s.replace(/\\'([0-9a-fA-F]{2})/g, function(_,h){
+    try { return String.fromCharCode(parseInt(h,16)); } catch(e){ return ""; }
+  });
+  s = s.replace(/\\tab/g, "\t");
+  s = s.replace(/\\par[d]?/g, "\n");
+  s = s.replace(/\\line/g, "\n");
+  s = s.replace(/\\[a-zA-Z]+-?\d* ?/g, "");
+  s = s.replace(/[{}]/g, " ");
+  s = s.replace(/[ \f\v]+/g, " ");
+  return s;
+}
+
+function parseCollectionForm(text){
+  let plain = text.indexOf("\\rtf") >= 0 ? rtfToPlainText(text) : text;
+  let flat = plain.replace(/\s+/g, " ");
+  const start = flat.indexOf("California Cliffs");
+  if(start >= 0) flat = flat.slice(start);
+
+  const cats = ["Awp Adult","B3","Crane","Hockey","Kiddie Ride","Prize SWP","Pushers","Redemption","SWP","Vendors","Video Game","AWP Liquor","Pool"];
+  const areas = ["AGC","ARCADE","BAR"];
+  let markers = [];
+
+  cats.forEach(cat=>{
+    let re = cat === "SWP" ? /(?<!Prize )\bSWP\b/g : new RegExp("\\b"+cat.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","g");
+    let m;
+    while((m = re.exec(flat)) !== null) markers.push({s:m.index,e:m.index+m[0].length,name:cat,type:"cat"});
+  });
+
+  areas.forEach(area=>{
+    let re = new RegExp("\\b"+area+"\\b","g");
+    let m;
+    while((m = re.exec(flat)) !== null) markers.push({s:m.index,e:m.index+m[0].length,name:area,type:"area"});
+  });
+
+  markers.sort((a,b)=>a.s-b.s);
+  let out = [];
+
+  for(let x=0;x<markers.length;x++){
+    let marker = markers[x];
+    if(marker.type !== "cat") continue;
+    let end = x+1 < markers.length ? markers[x+1].s : flat.length;
+    let seg = flat.slice(marker.e, end);
+    let rowRe = /(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(.+?)(?=\s+\d+\s+\d+\s+\d+\s+\d+\s+| Collector Signature| Loc Mod\/Stk| Page \d|$)/g;
+    let r;
+    while((r = rowRe.exec(seg)) !== null){
+      let loc = r[1], machine = String(r[5]||"").replace(/\s+/g," ").trim();
+      if(!machine || machine.includes("Meter 1") || machine.includes("Machine Name")) continue;
+      out.push({type:marker.name, name:machine, location:loc, barcode:"LOC"+loc});
+    }
+  }
+  return out;
+}
+
+function looksLikeCollectionForm(text){
+  return String(text||"").includes("Overall Collection Form") || String(text||"").includes("Loc") && String(text||"").includes("Machine Name");
+}
+
 function loadRouteText(text){
   let rows=parseCSV(text).filter(r=>r.some(c=>String(c).trim()));
   if(rows.length<2){setStatus("Not loaded: CSV has no rows.");alert("CSV needs headings and rows");return}
@@ -187,7 +248,7 @@ function loadRouteText(text){
 function renderPreview(){
   let box=$("preview"); box.innerHTML="";
   if(!route.length){box.innerHTML='<div class="row"><b>No route loaded</b><span>CSV needs Type, Name, Location.</span></div>';updateTop();return}
-  route.forEach((m,i)=>{let e=ent(i),div=document.createElement("div");div.className="row";div.innerHTML="<b>"+m.location+" - "+m.name+"</b><span>"+m.type+" • Meter: "+(e.meter||"—")+" • Income: "+(e.income||"—")+"</span>";box.appendChild(div)});
+  route.forEach((m,i)=>{let e=ent(i),div=document.createElement("div");div.className="row";div.innerHTML="<b>"+(m.barcode||("LOC"+m.location))+" - "+m.name+"</b><span>"+m.type+" • Location: "+m.location+" • Meters: "+((e.meters||[]).filter(Boolean).join(" | ")||"—")+" • Income: "+(e.income||"—")+"</span>";box.appendChild(div)});
   updateTop();
 }
 function startMeters(){if(!route.length){alert("Upload route first");return} barcode=""; renderBarcode(); show("barcode")}
@@ -195,33 +256,74 @@ function renderBarcode(){
   $("barcodeValue").textContent=barcode||"—"; let box=$("barcodeList"); box.innerHTML="";
   let missing=route.filter((_,i)=>!ent(i).meterDone).length;
   box.innerHTML='<div class="row"><b>Scan next barcode</b><span>'+missing+' machines still need meters.</span></div>';
-  route.forEach((m,i)=>{let e=ent(i),d=document.createElement("div");d.className="row";d.innerHTML="<b>"+m.location+" - "+m.name+"</b><span>"+m.type+" • "+(e.meterDone?"DONE":"MISSING")+" • Meter: "+(e.meter||"—")+"</span>";box.appendChild(d)});
+  route.forEach((m,i)=>{let e=ent(i),d=document.createElement("div");d.className="row";d.innerHTML="<b>"+m.location+" - "+m.name+"</b><span>"+m.type+" • "+(e.meterDone?"DONE":"MISSING")+" • Meters: "+((e.meters||[]).filter(Boolean).join(" | ")||"—")+"</span>";box.appendChild(d)});
 }
 function openCode(code){
   if(!code){alert("Enter or scan barcode");return}
-  let clean=norm(code), i=route.findIndex(m=>norm(m.location)===clean||norm("LOC"+m.location)===clean);
+  let clean=norm(code), i=route.findIndex(m=>norm(m.location)===clean||norm("LOC"+m.location)===clean||norm(m.barcode||"")===clean);
   if(i<0){alert("No machine found: "+code);return}
-  current=i; meter=ent(i).meter||"";
-  $("machineType").textContent=route[i].type; $("machineName").textContent=route[i].name; $("machineLocation").textContent="Location / barcode: "+route[i].location; $("meterValue").textContent=meter||"—";
+  current=i;
+  let e=ent(i);
+  meterSlot=0;
+  for(let n=0;n<4;n++){if(!e.meters[n]){meterSlot=n;break}}
+  meter=e.meters[meterSlot]||"";
+  $("machineType").textContent=route[i].type;
+  $("machineName").textContent=route[i].name;
+  $("machineLocation").textContent="Location / barcode: "+route[i].location;
+  renderMeterScreen();
   show("meter");
 }
+
+function renderMeterScreen(){
+  let e=ent(current);
+  $("meterPrompt").textContent="Enter meter "+(meterSlot+1)+" of 4";
+  $("meterValue").textContent=meter||"—";
+  let box=$("meterSlots");
+  box.innerHTML="";
+  for(let n=0;n<4;n++){
+    let d=document.createElement("div");
+    d.className="row";
+    d.innerHTML="<b>Meter "+(n+1)+"</b><span>"+(e.meters[n]||"—")+"</span>";
+    d.addEventListener("click",()=>{meterSlot=n;meter=e.meters[n]||"";renderMeterScreen()});
+    box.appendChild(d);
+  }
+}
+
 function openBarcode(){openCode(barcode)}
-function saveMeter(){if(current<0)return;let e=ent(current);e.meter=meter;e.meterDone=true;barcode="";save();renderBarcode();show("barcode")}
+function saveMeter(){
+  if(current<0)return;
+  let e=ent(current);
+  e.meters[meterSlot]=meter;
+  e.meter=e.meters.filter(Boolean).join(" | ");
+  if(meterSlot<3){
+    meterSlot++;
+    meter=e.meters[meterSlot]||"";
+    save();
+    renderMeterScreen();
+    return;
+  }
+  e.meterDone=e.meters.some(v=>String(v||"").trim()!=="");
+  barcode="";
+  save();
+  renderBarcode();
+  show("barcode");
+}
+
 function startIncome(){if(!route.length){alert("Upload route first");return} if(!route.every((_,i)=>ent(i).meterDone)){alert("Finish meter input first");return} incomeIndex=0; openIncome()}
 function openIncome(){if(incomeIndex>=route.length){showReport();return} current=incomeIndex; income=ent(current).income||""; $("incomeType").textContent=route[current].type; $("incomeName").textContent=route[current].name; $("incomeLocation").textContent="Machine "+(incomeIndex+1)+" of "+route.length+" • Location "+route[current].location; $("incomeValue").textContent=income||"—"; show("income")}
 function saveIncome(){let e=ent(current);e.income=income;e.incomeDone=true;incomeIndex++;save();openIncome()}
-function appendVal(v){if(activeScreen==="barcode"){barcode+=v;$("barcodeValue").textContent=barcode||"—"}else if(activeScreen==="meter"){if(v==="."&&meter.includes("."))return;meter+=v;$("meterValue").textContent=meter||"—"}else if(activeScreen==="income"){if(v==="."&&income.includes("."))return;income+=v;$("incomeValue").textContent=income||"—"}}
-function backspace(){if(activeScreen==="barcode"){barcode=barcode.slice(0,-1);$("barcodeValue").textContent=barcode||"—"}else if(activeScreen==="meter"){meter=meter.slice(0,-1);$("meterValue").textContent=meter||"—"}else if(activeScreen==="income"){income=income.slice(0,-1);$("incomeValue").textContent=income||"—"}}
-function clearActive(){if(activeScreen==="barcode"){barcode="";$("barcodeValue").textContent="—"}else if(activeScreen==="meter"){meter="";$("meterValue").textContent="—"}else if(activeScreen==="income"){income="";$("incomeValue").textContent="—"}}
+function appendVal(v){if(activeScreen==="barcode"){barcode+=v;$("barcodeValue").textContent=barcode||"—"}else if(activeScreen==="meter"){if(v==="."&&meter.includes("."))return;meter+=v;renderMeterScreen()}else if(activeScreen==="income"){if(v==="."&&income.includes("."))return;income+=v;$("incomeValue").textContent=income||"—"}}
+function backspace(){if(activeScreen==="barcode"){barcode=barcode.slice(0,-1);$("barcodeValue").textContent=barcode||"—"}else if(activeScreen==="meter"){meter=meter.slice(0,-1);renderMeterScreen()}else if(activeScreen==="income"){income=income.slice(0,-1);$("incomeValue").textContent=income||"—"}}
+function clearActive(){if(activeScreen==="barcode"){barcode="";$("barcodeValue").textContent="—"}else if(activeScreen==="meter"){meter="";renderMeterScreen()}else if(activeScreen==="income"){income="";$("incomeValue").textContent="—"}}
 function mainInput(){if(activeScreen==="barcode")openBarcode();else if(activeScreen==="meter")saveMeter();else if(activeScreen==="income")saveIncome()}
-function rows(){return route.map((m,i)=>{let e=ent(i);return {Type:m.type,Name:m.name,Location:m.location,Meter:e.meter,Income:e.income,Status:e.meterDone&&e.incomeDone?"DONE":e.meterDone?"METER ONLY":"MISSING"}})}
+function rows(){return route.map((m,i)=>{let e=ent(i);return {Type:m.type,Name:m.name,Location:m.location,Meter_1:e.meters[0]||"",Meter_2:e.meters[1]||"",Meter_3:e.meters[2]||"",Meter_4:e.meters[3]||"",Income:e.income,Status:e.meterDone&&e.incomeDone?"DONE":e.meterDone?"METER ONLY":"MISSING"}})}
 function makeCSV(){let r=rows();if(!r.length)return"";let h=Object.keys(r[0]);return [h.join(",")].concat(r.map(row=>h.map(k=>'"'+String(row[k]||"").replaceAll('"','""')+'"').join(","))).join("\n")}
-function showReport(){ $("csvBox").value=makeCSV(); let box=$("reportList"); box.innerHTML=""; rows().forEach(r=>{let d=document.createElement("div");d.className="row";d.innerHTML="<b>"+r.Location+" - "+r.Name+"</b><span>"+r.Type+" • Meter: "+(r.Meter||"—")+" • Income: "+(r.Income||"—")+" • "+r.Status+"</span>";box.appendChild(d)}); show("report")}
+function showReport(){ $("csvBox").value=makeCSV(); let box=$("reportList"); box.innerHTML=""; rows().forEach(r=>{let d=document.createElement("div");d.className="row";d.innerHTML="<b>"+r.Location+" - "+r.Name+"</b><span>"+r.Type+" • Meters: "+([r.Meter_1,r.Meter_2,r.Meter_3,r.Meter_4].filter(Boolean).join(" | ")||"—")+" • Income: "+(r.Income||"—")+" • "+r.Status+"</span>";box.appendChild(d)}); show("report")}
 function downloadCSV(){let blob=new Blob([makeCSV()],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="meters_income_output.csv";a.click()}
 function copyCSV(){navigator.clipboard.writeText(makeCSV()).then(()=>alert("Copied"))}
 function resetMetersSafety(){
   if(!clearMetersArmed){clearMetersArmed=true;$("clearMetersBtn").textContent="CONFIRM";$("clearMetersBtn").classList.remove("red");$("clearMetersBtn").classList.add("amber");setStatus("Press CONFIRM to clear saved meter readings.");setTimeout(()=>{if(clearMetersArmed){clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red")}},5000);return}
-  Object.keys(entries).forEach(k=>{entries[k].meter="";entries[k].meterDone=false});clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red");save();renderPreview();setStatus("Saved meter readings cleared. Route remains loaded.");
+  Object.keys(entries).forEach(k=>{entries[k].meters=["","","",""];entries[k].meter="";entries[k].meterDone=false});clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red");save();renderPreview();setStatus("Saved meter readings cleared. Route remains loaded.");
 }
 async function startScanner(){
   if(barcode){openBarcode();return}

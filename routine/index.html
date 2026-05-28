@@ -1,3 +1,4 @@
+
 <!-- index.html -->
 <!DOCTYPE html>
 <html>
@@ -849,6 +850,31 @@ This app stops you wrecking your face.
 
 ${create("AM", day.am)}
 ${create("PM", day.pm)}
+
+<button onclick="toggleRetinolRoutine()" id="retinolButton">
+  Retinol Routine
+</button>
+
+<div class="quoteBox" id="retinolBox" style="display:none; margin-top:10px;">
+  <div class="quoteTitle">Retinol Guidance</div>
+  <div class="quoteText" style="font-size:15px; font-weight:400; text-align:left; line-height:1.7;">
+    🌙 Night only<br>
+    📅 Start 2–3 nights weekly<br>
+    ⚪ Pea-sized amount only<br>
+    💧 Moisturiser after use<br>
+    ☀️ SPF 50 required next morning<br><br>
+
+    ⚠️ Avoid combining with:<br>
+    - Tan<br>
+    - Exfoliants<br>
+    - Strong acids<br><br>
+
+    Beginner Pattern:<br>
+    Monday — Retinol<br>
+    Thursday — Retinol<br>
+    Sunday — Optional
+  </div>
+</div>
 `;
 
 // 💧 WATER TRACKER
@@ -892,6 +918,16 @@ function closePopup(){
 
 function toggleQuote(){
   const box = document.getElementById("quoteBox");
+
+  if(box.style.display === "none"){
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+  }
+}
+
+function toggleRetinolRoutine(){
+  const box = document.getElementById("retinolBox");
 
   if(box.style.display === "none"){
     box.style.display = "block";

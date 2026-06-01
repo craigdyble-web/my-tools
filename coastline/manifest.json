@@ -1,0 +1,11 @@
+{
+  "name": "APPitise to win",
+  "short_name": "APPitise",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#1e40af",
+  "description": "A phase-based task app for launching Coastline Club.",
+  "icons": []
+}

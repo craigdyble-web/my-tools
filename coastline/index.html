@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APPitise to win</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#1e40af" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="APPitise" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { margin: 0; background: #f4f6f8; color: #111827; }
+    .app { max-width: 720px; margin: 0 auto; padding: 18px; }
+    header {
+      background: linear-gradient(135deg, #0f172a, #1e40af);
+      color: white; padding: 24px 18px; border-radius: 22px;
+      margin-bottom: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    header h1 { margin: 0; font-size: 30px; letter-spacing: -1px; }
+    header p { margin: 8px 0 0; opacity: 0.9; font-size: 15px; }
+    .progress-wrap {
+      background: white; padding: 16px; border-radius: 18px;
+      margin-bottom: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+    }
+    .progress-text {
+      display: flex; justify-content: space-between; font-weight: bold;
+      margin-bottom: 10px; font-size: 14px;
+    }
+    .bar { height: 14px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; width: 0%; background: #1e40af; transition: width 0.3s ease; }
+    .phase {
+      background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07); border: 2px solid transparent;
+    }
+    .phase.locked { opacity: 0.45; }
+    .phase.active { border-color: #1e40af; }
+    .phase.complete { border-color: #16a34a; }
+    .phase-top {
+      display: flex; justify-content: space-between; gap: 12px;
+      align-items: flex-start; margin-bottom: 12px;
+    }
+    .phase h2 { margin: 0; font-size: 20px; }
+    .phase small { display: block; margin-top: 4px; color: #6b7280; line-height: 1.35; }
+    .badge {
+      padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: bold;
+      white-space: nowrap; background: #e5e7eb; color: #374151;
+    }
+    .badge.active { background: #dbeafe; color: #1d4ed8; }
+    .badge.complete { background: #dcfce7; color: #15803d; }
+    .task {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 12px 0; border-top: 1px solid #e5e7eb;
+    }
+    .task input { width: 22px; height: 22px; margin-top: 1px; accent-color: #1e40af; }
+    .task label { flex: 1; font-size: 15px; line-height: 1.35; }
+    .task.done label { text-decoration: line-through; color: #6b7280; }
+    .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+    button {
+      border: none; border-radius: 14px; padding: 14px;
+      font-size: 15px; font-weight: bold; cursor: pointer;
+    }
+    .primary { background: #1e40af; color: white; }
+    .danger { background: #dc2626; color: white; }
+    .success-box {
+      display: none; background: #dcfce7; border: 2px solid #16a34a;
+      color: #14532d; padding: 18px; border-radius: 18px;
+      margin-bottom: 18px; font-weight: bold; text-align: center;
+    }
+    @media (max-width: 520px) {
+      .app { padding: 12px; }
+      header h1 { font-size: 26px; }
+      .buttons { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>APPitise to win</h1>
+      <p>One phase at a time. Complete every task, then unlock the next step.</p>
+    </header>
+
+    <section class="progress-wrap">
+      <div class="progress-text">
+        <span>Coastline Club launch progress</span>
+        <span id="percent">0%</span>
+      </div>
+      <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+    </section>
+
+    <div class="success-box" id="successBox">
+      Coastline Club launch plan complete. Now test the idea properly.
+    </div>
+
+    <section id="phases"></section>
+
+    <div class="buttons">
+      <button class="primary" onclick="saveProgress()">Save Progress</button>
+      <button class="danger" onclick="resetApp()">Reset App</button>
+    </div>
+  </main>
+
+  <script>
+    const phases = [
+      {
+        title: "Phase 1 – Spend Almost Nothing",
+        subtitle: "Reserve the brand, make one design, and avoid stock risk.",
+        tasks: [
+          "Check coastlineclub.co.uk",
+          "Check coastlineclub.uk",
+          "Check Instagram handle availability",
+          "Check TikTok handle availability",
+          "Create simple text logo: COASTLINE CLUB",
+          "Create one cream hoodie design",
+          "Add small front logo",
+          "Add large back logo",
+          "Open Printify or Printful account",
+          "Create one print-on-demand hoodie mockup"
+        ]
+      },
+      {
+        title: "Phase 2 – Build the Lifestyle",
+        subtitle: "Sell the feeling, not just the hoodie.",
+        tasks: [
+          "Film sunrise at Winterton beach",
+          "Film coffee overlooking the sea",
+          "Film Hemsby dunes",
+          "Film Great Yarmouth seafront at sunset",
+          "Film friends laughing around a caravan",
+          "Film beach dog walks",
+          "Use caption: Escape the ordinary",
+          "Use caption: The coast is calling",
+          "Use caption: Members only",
+          "Post one video every day for 30 days"
+        ]
+      },
+      {
+        title: "Phase 3 – Test Before Spending",
+        subtitle: "Your first target is 10 hoodie sales, not a warehouse.",
+        tasks: [
+          "Set test price at £50 per hoodie",
+          "Add order link to TikTok or Instagram bio",
+          "Ask viewers if they would wear it",
+          "Track comments asking where to buy",
+          "Aim for first stranger sale",
+          "Aim for 10 hoodie sales",
+          "Write down what colours people ask for",
+          "Write down what sizes people ask for"
+        ]
+      },
+      {
+        title: "Phase 4 – Build a Club",
+        subtitle: "Turn buyers into members of Coastline Club.",
+        tasks: [
+          "Stop saying: Buy our hoodie",
+          "Start saying: Join the Coastline Club",
+          "Create a members-only style message",
+          "Post customer photos if buyers send them",
+          "Create a second hoodie only if the first one sells",
+          "Keep the brand coastal, simple, and recognisable",
+          "Review what worked after 30 days",
+          "Decide whether to continue, improve, or stop"
+        ]
+      }
+    ];
+
+    let checked = JSON.parse(localStorage.getItem("appitise-progress")) || {};
+
+    function phaseComplete(index) {
+      return phases[index].tasks.every((_, taskIndex) => checked[`${index}-${taskIndex}`]);
+    }
+
+    function phaseUnlocked(index) {
+      if (index === 0) return true;
+      return phaseComplete(index - 1);
+    }
+
+    function render() {
+      const container = document.getElementById("phases");
+      container.innerHTML = "";
+
+      phases.forEach((phase, phaseIndex) => {
+        const unlocked = phaseUnlocked(phaseIndex);
+        const complete = phaseComplete(phaseIndex);
+        const active = unlocked && !complete;
+
+        const section = document.createElement("section");
+        section.className = `phase ${unlocked ? "" : "locked"} ${active ? "active" : ""} ${complete ? "complete" : ""}`;
+
+        let badgeText = "Locked";
+        let badgeClass = "";
+        if (complete) {
+          badgeText = "Complete";
+          badgeClass = "complete";
+        } else if (active) {
+          badgeText = "Active";
+          badgeClass = "active";
+        }
+
+        section.innerHTML = `
+          <div class="phase-top">
+            <div>
+              <h2>${phase.title}</h2>
+              <small>${phase.subtitle}</small>
+            </div>
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          </div>
+        `;
+
+        phase.tasks.forEach((task, taskIndex) => {
+          const id = `${phaseIndex}-${taskIndex}`;
+          const done = !!checked[id];
+
+          const row = document.createElement("div");
+          row.className = `task ${done ? "done" : ""}`;
+          row.innerHTML = `
+            <input type="checkbox" id="task-${id}" ${done ? "checked" : ""} ${unlocked ? "" : "disabled"} />
+            <label for="task-${id}">${task}</label>
+          `;
+
+          row.querySelector("input").addEventListener("change", (e) => {
+            checked[id] = e.target.checked;
+            saveProgress(false);
+            render();
+          });
+
+          section.appendChild(row);
+        });
+
+        container.appendChild(section);
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const total = phases.reduce((sum, phase) => sum + phase.tasks.length, 0);
+      const done = Object.values(checked).filter(Boolean).length;
+      const percent = Math.round((done / total) * 100);
+
+      document.getElementById("percent").textContent = percent + "%";
+      document.getElementById("barFill").style.width = percent + "%";
+      document.getElementById("successBox").style.display = percent === 100 ? "block" : "none";
+    }
+
+    function saveProgress(showAlert = true) {
+      localStorage.setItem("appitise-progress", JSON.stringify(checked));
+      if (showAlert) alert("Progress saved.");
+    }
+
+    function resetApp() {
+      if (!confirm("Reset all progress?")) return;
+      checked = {};
+      localStorage.removeItem("appitise-progress");
+      render();
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js");
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>

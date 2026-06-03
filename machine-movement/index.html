@@ -1,1 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Movement App v4 - Locked Base v4</title>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<style>
+:root{--blue:#005BBB;--red:#D32F2F;--text:#1f2937;--muted:#667085;--line:#d0d5dd;--bg:#f5f7fb;--card:#ffffff}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+.container{max-width:700px;margin:auto;padding:20px}.card{background:var(--card);padding:20px;border-radius:16px;box-shadow:0 8px 24px rgba(16,24,40,.08);border:1px solid #eaecf0}.brand-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}.playnation-logo{display:flex;align-items:center;font-weight:700;font-size:32px;letter-spacing:-1px;line-height:1}.playnation-logo .tile{display:inline-flex;align-items:center;justify-content:center;width:34px;height:42px;color:#fff;margin-right:2px}.playnation-logo .p{background:#8a0f3d}.playnation-logo .l{background:#e30613}.playnation-logo .a{background:#8fb0c4}.playnation-logo .y{background:#263238}.playnation-logo .nation{color:#263238;margin-left:5px;font-weight:500}.brand-header h1{margin:0;color:var(--text);font-size:30px}@media(max-width:600px){.brand-header{gap:10px}.playnation-logo{font-size:24px}.playnation-logo .tile{width:28px;height:34px}.brand-header h1{font-size:26px}}h1{margin-top:0;color:var(--text)}
+input,select,textarea{width:100%;padding:16px;font-size:18px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);box-sizing:border-box}textarea{min-height:80px;resize:vertical;font-family:Arial,sans-serif}.photo-note{border-top:1px solid var(--line);padding:10px;background:#fff}.photo-note label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px;color:var(--text)}input[type="file"]{background:#fff;border:1px dashed var(--blue)}
+button{width:100%;padding:16px;font-size:18px;border:none;border-radius:12px;margin-top:12px;cursor:pointer;font-weight:bold}.next{background:var(--blue);color:#fff}.back{background:var(--red);color:white}.danger{background:var(--red);color:white}.progress{height:10px;background:#e4e7ec;border-radius:10px;margin-bottom:20px;overflow:hidden}.bar{height:100%;background:var(--blue);width:0%}.small{color:var(--muted);font-size:14px;line-height:1.4}.machine-count{text-align:right;color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 12px 0;font-weight:bold}.photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px}.photo-box{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}.photo-box img{width:100%;display:block}.photo-box button{margin:0;border-radius:0;background:var(--red);color:white;font-size:14px;padding:10px}.review-box{background:#fff;border:1px solid var(--line);padding:12px;border-radius:12px;margin:10px 0}.notice{background:#eef4ff;border:1px solid var(--blue);color:#1849a9;padding:12px;border-radius:12px;margin:12px 0}.ok{background:#ecfdf3;border:1px solid #12b76a;color:#027a48;padding:12px;border-radius:12px;margin:12px 0}.error{background:#fef3f2;border:1px solid var(--red);color:#b42318;padding:12px;border-radius:12px;margin:12px 0}@media(max-width:600px){.container{padding:12px}.card{padding:18px}h1{font-size:28px}input,select,textarea,button{font-size:18px;min-height:58px}.photo-grid{grid-template-columns:1fr}.machine-count{text-align:right}}
+</style>
+</head>
+<body>
+<div class="container"><div class="card"><div class="brand-header"><div class="playnation-logo" aria-label="playnation logo"><span class="tile p">p</span><span class="tile l">l</span><span class="tile a">a</span><span class="tile y">y</span><span class="nation">nation</span></div><h1>Machine Movement App</h1></div><div class="progress"><div class="bar" id="bar"></div></div><div id="app"></div></div></div>
+<script>
+const steps=[
+  ["Current Site","currentSite","text"],
+  ["Movement Date","movementDate","date"],
+  ["Movement Type","movementType","select"],
+  ["Destination / Received From","movementPlace","text"],
+  ["Machine Name","machineName","text"],
+  ["Model","model","text"],
+  ["Stock Number","stock","text"],
+  ["Serial Number","serial","text"],
+  ["Machine Photos","photos","photos"]
+];
 
+const MAX_MACHINES=8;
+let current=0;
+let data=JSON.parse(localStorage.getItem("machineMovementLockedBase") || "{}");
+if(!Array.isArray(data.machines)) data.machines=[];
+if(!data.photos) data.photos=[];
+if(!Array.isArray(data.photoNotes)) data.photoNotes=[];
+if(!data.movementDate) data.movementDate=new Date().toISOString().slice(0,10);
+let templateBuffer=null;
+let templateName="";
+const storedTemplateFiles=["template.xlsm","template.xlsx"];
+
+function save(){localStorage.setItem("machineMovementLockedBase",JSON.stringify(data));}
+function movementPlaceLabel(item=data){return (String(item.movementType||"").toUpperCase()==="IN") ? "Received From" : "Destination";}
+function movementTypeDisplay(item=data){return String(item.movementType||"").toUpperCase();}
+function movementDateText(item=data){
+  if(!item.movementDate) return todayText();
+  const parts=String(item.movementDate).split("-");
+  if(parts.length===3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return item.movementDate;
+}
+function machineSnapshot(){
+  return {
+    currentSite:data.currentSite||"",
+    movementDate:data.movementDate||new Date().toISOString().slice(0,10),
+    movementType:movementTypeDisplay(),
+    movementPlace:data.movementPlace||"",
+    machineName:data.machineName||"",
+    model:data.model||"",
+    stock:data.stock||"",
+    serial:data.serial||"",
+    photos:Array.isArray(data.photos)?[...data.photos]:[],
+    photoNotes:Array.isArray(data.photoNotes)?[...data.photoNotes]:[]
+  };
+}
+function currentMachineComplete(){
+  return !!(data.currentSite && data.movementDate && data.movementType && data.movementPlace && data.machineName && data.model && data.stock && data.serial);
+}
+function machinesForExport(){
+  const list=Array.isArray(data.machines)?[...data.machines]:[];
+  if(currentMachineComplete()) list.push(machineSnapshot());
+  return list.slice(0,MAX_MACHINES);
+}
+function clearCurrentMachine(){
+  data.currentSite="";
+  data.movementDate=new Date().toISOString().slice(0,10);
+  data.movementType="";
+  data.movementPlace="";
+  data.machineName="";
+  data.model="";
+  data.stock="";
+  data.serial="";
+  data.photos=[];
+  data.photoNotes=[];
+}
+function addAnotherMachine(){
+  if(!currentMachineComplete()){
+    alert("Complete this machine before adding another one.");
+    return;
+  }
+  if(data.machines.length>=MAX_MACHINES){
+    alert("Maximum 8 machines per sheet.");
+    return;
+  }
+  data.machines.push(machineSnapshot());
+  if(data.machines.length>=MAX_MACHINES){
+    save();
+    alert("8 machines added. You can now download the sheet.");
+    render();
+    return;
+  }
+  clearCurrentMachine();
+  save();
+  current=0;
+  render();
+}
+
+function hasCurrentMachineData(){
+  return !!(data.currentSite || data.movementType || data.movementPlace || data.machineName || data.model || data.stock || data.serial || (Array.isArray(data.photos) && data.photos.length) || (Array.isArray(data.photoNotes) && data.photoNotes.some(n=>String(n||"").trim())));
+}
+function returnToPreviousMachine(){
+  if(!Array.isArray(data.machines) || data.machines.length===0){return;}
+  if(hasCurrentMachineData() && !confirm("Return to previous machine? The current unfinished machine will be removed.")){return;}
+  const previous=data.machines.pop();
+  data.currentSite=previous.currentSite||"";
+  data.movementDate=previous.movementDate||new Date().toISOString().slice(0,10);
+  data.movementType=previous.movementType||"";
+  data.movementPlace=previous.movementPlace||"";
+  data.machineName=previous.machineName||"";
+  data.model=previous.model||"";
+  data.stock=previous.stock||"";
+  data.serial=previous.serial||"";
+  data.photos=Array.isArray(previous.photos)?[...previous.photos]:[];
+  data.photoNotes=Array.isArray(previous.photoNotes)?[...previous.photoNotes]:[];
+  save();
+  current=0;
+  render();
+}
+
+function render(){
+  const app=document.getElementById("app");
+  document.getElementById("bar").style.width=((current)/steps.length*100)+"%";
+  const savedCount=Array.isArray(data.machines)?data.machines.length:0;
+  const returnPreviousButton=savedCount>0?'<button class="back" onclick="returnToPreviousMachine()">Return To Previous Machine</button>':'';
+  const machineCountHtml=`<p class="machine-count">Machine ${Math.min(savedCount+1,MAX_MACHINES)} of ${MAX_MACHINES}</p>`;
+  if(current<8){
+    const step=steps[current];
+    const key=step[1];
+    let title=step[0];
+    let inputHtml="";
+
+    if(key==="movementPlace") title=movementPlaceLabel();
+
+    if(step[2]==="select"){
+      inputHtml=`<select id="field"><option value="">Select IN or OUT</option><option value="OUT" ${data.movementType==="OUT"?"selected":""}>OUT</option><option value="IN" ${data.movementType==="IN"?"selected":""}>IN</option></select>`;
+    }else if(step[2]==="date"){
+      inputHtml=`<input id="field" type="date" value="${escapeHtml(data[key]||new Date().toISOString().slice(0,10))}" autocomplete="off">`;
+    }else{
+      inputHtml=`<input id="field" value="${escapeHtml(data[key]||'')}" autocomplete="off">`;
+    }
+
+    app.innerHTML=`<h2>${title}</h2>${machineCountHtml}${inputHtml}<button class="next" onclick="nextStep()">Next</button>${current>0?'<button class="back" onclick="backStep()">Back</button>':''}${returnPreviousButton}${current===0?'<button class="danger" onclick="clearForm()">Clear Form</button>':''}`;
+  }else if(current===8){
+    app.innerHTML=`<h2>Machine Photos</h2>${machineCountHtml}<p class="small">Take or upload up to 5 photos of the machine. Add a short note under any photo, for example damage or marks.</p><input id="photoInput" type="file" accept="image/*" capture="environment" multiple onchange="addPhotos(event)"><p class="small">${data.photos.length} of 5 photos added</p><div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}"><div class="photo-note"><label>Photo ${i+1} Note</label><textarea placeholder="Example: Damage on left side panel" oninput="updatePhotoNote(${i}, this.value)">${escapeHtml((data.photoNotes||[])[i]||'')}</textarea></div><button onclick="removePhoto(${i})">Remove photo</button></div>`).join("")}</div><button class="next" onclick="nextStep()">Next</button><button class="back" onclick="backStep()">Back</button>${returnPreviousButton}`;
+  }else{
+    const exportCount=machinesForExport().length;
+    const canAdd=savedCount<MAX_MACHINES;
+    app.innerHTML=`<h2>Review</h2>
+      <p class="machine-count">${exportCount} of ${MAX_MACHINES} machines ready</p>
+      ${savedCount>0?`<div class="review-box"><strong>Saved Machines:</strong><br>${savedCount} already added to this sheet</div>`:""}
+      <div class="review-box"><strong>Current Site:</strong><br>${escapeHtml(data.currentSite||'')}</div>
+      <div class="review-box"><strong>Movement Date:</strong><br>${escapeHtml(movementDateText())}</div>
+      <div class="review-box"><strong>Movement Type:</strong><br>${escapeHtml(movementTypeDisplay())}</div>
+      <div class="review-box"><strong>${escapeHtml(movementPlaceLabel())}:</strong><br>${escapeHtml(data.movementPlace||'')}</div>
+      <div class="review-box"><strong>Machine Name:</strong><br>${escapeHtml(data.machineName||'')}</div>
+      <div class="review-box"><strong>Model:</strong><br>${escapeHtml(data.model||'')}</div>
+      <div class="review-box"><strong>Stock Number:</strong><br>${escapeHtml(data.stock||'')}</div>
+      <div class="review-box"><strong>Serial Number:</strong><br>${escapeHtml(data.serial||'')}</div>
+      <div class="review-box"><strong>Photos:</strong><br>${data.photos.length} attached</div>
+      <div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}">${((data.photoNotes||[])[i]||"").trim()?`<div class="photo-note"><strong>Note:</strong><br>${escapeHtml((data.photoNotes||[])[i]||"")}</div>`:""}</div>`).join("")}</div>
+      ${canAdd?'<button class="next" onclick="addAnotherMachine()">Add Another Machine To This Sheet</button>':'<div class="ok">Maximum 8 machines added.</div>'}
+      <button class="next" onclick="downloadExcelFile()">Download Filled Excel File</button>
+      <button class="next" onclick="emailExcelFile()">Email Excel File</button>
+      <button class="next" onclick="saveToOneDrive()">Save / Share To OneDrive</button>
+      <p class="small">Email and OneDrive use your phone/laptop share options. On iPhone, choose Mail, Outlook, or OneDrive from the share sheet. On laptop, download first if your browser does not support direct sharing.</p>
+      <button class="back" onclick="backStep()">Back</button>
+      ${returnPreviousButton}
+      <button class="danger" onclick="clearForm()">Clear Form</button>`;
+  }
+}
+function nextStep(){
+  if(current<8){
+    const field=document.getElementById("field");
+    if(!field.value.trim()) return;
+    const key=steps[current][1];
+    data[key]=field.value.trim();
+    if(key==="movementType"){
+      data.movementType=data.movementType.toUpperCase();
+      data.movementPlace="";
+    }
+    save();
+  }
+  current++;render();
+}
+function backStep(){if(current>0){current--;render();}}
+function addPhotos(event){const files=Array.from(event.target.files);const remaining=5-data.photos.length;if(remaining<=0){alert("Maximum 5 photos allowed.");return;}files.slice(0,remaining).forEach(file=>{const reader=new FileReader();reader.onload=e=>{data.photos.push(e.target.result);if(!Array.isArray(data.photoNotes)) data.photoNotes=[];data.photoNotes.push("");save();render();};reader.readAsDataURL(file);});if(files.length>remaining) alert("Only 5 photos maximum. Extra photos were not added.");}
+function updatePhotoNote(index,value){if(!Array.isArray(data.photoNotes)) data.photoNotes=[];data.photoNotes[index]=value;save();}
+function removePhoto(index){data.photos.splice(index,1);if(Array.isArray(data.photoNotes)) data.photoNotes.splice(index,1);save();render();}
+function clearForm(){if(confirm("Clear this movement form and all added machines?")){data={machines:[],photos:[],photoNotes:[],movementDate:new Date().toISOString().slice(0,10)};save();current=0;templateBuffer=null;templateName="";render();}}
+async function loadStoredTemplate(){
+  if(templateBuffer) return templateBuffer;
+  let lastError="";
+  for(const fileName of storedTemplateFiles){
+    try{
+      const response=await fetch(fileName,{cache:"no-store"});
+      if(!response.ok){lastError=`${fileName}: ${response.status}`; continue;}
+      templateBuffer=await response.arrayBuffer();
+      templateName=fileName;
+      return templateBuffer;
+    }catch(err){lastError=err.message;}
+  }
+  throw new Error("Stored template not found. Put template.xlsm or template.xlsx in the same GitHub folder as this HTML file. " + lastError);
+}
+function setCell(ws,address,value){const cell=ws.getCell(address);cell.value=value || "";}
+function getSheet(workbook,names){for(const n of names){const ws=workbook.getWorksheet(n);if(ws)return ws;}return workbook.worksheets[0];}
+function todayText(){return new Date().toLocaleDateString("en-GB");}
+function excelColumn(n){
+  let s="";
+  while(n>0){
+    let m=(n-1)%26;
+    s=String.fromCharCode(65+m)+s;
+    n=Math.floor((n-1)/26);
+  }
+  return s;
+}
+function movementColumn(index){return excelColumn(2+index);}
+function docketRow(index){return 5+index;}
+function outputFileName(){
+  const site=String(data.currentSite||"site").trim().replace(/[^a-z0-9]+/gi,"-").replace(/^-+|-+$/g,"") || "site";
+  const date=String(data.movementDate||new Date().toISOString().slice(0,10));
+  return `machine-movement-${site}-${date}.xlsx`;
+}
+async function buildExcelBlob(){
+  const machines=machinesForExport();
+  if(machines.length===0){throw new Error("Add at least one machine before exporting.");}
+  await loadStoredTemplate();
+  const workbook=new ExcelJS.Workbook();
+  await workbook.xlsx.load(templateBuffer);
+  workbook.creator="Machine Movement App";
+  workbook.modified=new Date();
+  const movement=getSheet(workbook,["Master Movement","Movement"]);
+  const docket=getSheet(workbook,["Transport Docket","Docket"]);
+
+  machines.forEach((m,i)=>{
+    const moveDate=movementDateText(m);
+    const moveType=movementTypeDisplay(m);
+    const placeLabel=movementPlaceLabel(m);
+    const dr=docketRow(i);
+
+    if(movement){
+      const mc=movementColumn(i);
+
+      // Master Movement fixed layout:
+      // One machine = one column.
+      // The machine details go DOWN the rows, not left-to-right across row 5.
+      // Machine 1 uses column B, Machine 2 uses column C, etc.
+      setCell(movement,"A1","Action Site");
+      setCell(movement,"A2","Date");
+      setCell(movement,"A3","Movement");
+      setCell(movement,"A5","Machine Name");
+      setCell(movement,"A6","Model");
+      setCell(movement,"A7","Stock");
+      setCell(movement,"A8","Serial");
+      setCell(movement,"A10",placeLabel);
+      setCell(movement,"A11","Location");
+
+      for(let r=1;r<=11;r++){
+        setCell(movement,`${mc}${r}`,"");
+      }
+
+      setCell(movement,`${mc}1`,m.currentSite);
+      setCell(movement,`${mc}2`,moveDate);
+      setCell(movement,`${mc}3`,moveType);
+      setCell(movement,`${mc}5`,m.machineName);
+      setCell(movement,`${mc}6`,m.model);
+      setCell(movement,`${mc}7`,m.stock);
+      setCell(movement,`${mc}8`,m.serial);
+      setCell(movement,`${mc}10`,m.movementPlace);
+      setCell(movement,`${mc}11`,m.currentSite);
+    }
+    if(docket){
+      setCell(docket,`A${dr}`,m.currentSite);
+      setCell(docket,`B${dr}`,moveDate);
+      setCell(docket,`C${dr}`,m.machineName);
+      setCell(docket,`D${dr}`,m.model);
+      setCell(docket,`E${dr}`,m.stock);
+      setCell(docket,`F${dr}`,m.serial);
+      setCell(docket,`G${dr}`,m.movementPlace);
+      setCell(docket,`H${dr}`,"");
+    }
+  });
+
+  let photos=workbook.getWorksheet("Photos");
+  if(!photos) photos=workbook.addWorksheet("Photos");
+  photos.spliceRows(1, photos.rowCount || 1);
+  photos.getCell("A1").value="Machine Photos";
+  photos.getCell("A1").font={bold:true,size:16};
+  photos.getColumn(1).width=18; photos.getColumn(2).width=70;
+  let row=3;
+  let photoCount=0;
+  machines.forEach((m,mi)=>{
+    photos.getCell(`A${row}`).value=`Machine ${mi+1}: ${m.machineName || ""}`;
+    photos.getCell(`A${row}`).font={bold:true};
+    row+=2;
+    const pics=Array.isArray(m.photos)?m.photos:[];
+    const notes=Array.isArray(m.photoNotes)?m.photoNotes:[];
+    if(pics.length===0){photos.getCell(`A${row}`).value="No photos added"; row+=2; return;}
+    pics.forEach((src,pi)=>{
+      photoCount++;
+      const ext=src.includes("image/png")?"png":"jpeg";
+      const imageId=workbook.addImage({base64:src,extension:ext});
+      photos.getCell(`A${row}`).value=`Photo ${pi+1}`;
+      photos.addImage(imageId,{tl:{col:1,row:row-1},ext:{width:360,height:260}});
+      for(let r=row;r<row+16;r++) photos.getRow(r).height=18;
+      row+=16;
+      const note=String(notes[pi]||"").trim();
+      if(note){
+        photos.getCell(`A${row}`).value="Note";
+        photos.getCell(`B${row}`).value=note;
+        photos.getCell(`B${row}`).alignment={wrapText:true,vertical:"top"};
+        photos.getRow(row).height=45;
+        row+=2;
+      }else{
+        row+=2;
+      }
+    });
+    row+=2;
+  });
+  if(photoCount===0 && machines.every(m=>!m.photos || m.photos.length===0)){photos.getCell("A3").value="No photos added";}
+
+  const out=await workbook.xlsx.writeBuffer();
+  return new Blob([out],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+}
+function downloadBlob(blob,fileName){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+async function downloadExcelFile(){
+  try{
+    const blob=await buildExcelBlob();
+    downloadBlob(blob,outputFileName());
+  }catch(err){
+    alert("Excel export failed: "+err.message);
+    console.error(err);
+  }
+}
+async function shareExcelFile(actionName){
+  try{
+    const blob=await buildExcelBlob();
+    const fileName=outputFileName();
+    const file=new File([blob],fileName,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+      await navigator.share({
+        title:"Machine Movement Sheet",
+        text:"Machine movement Excel file attached.",
+        files:[file]
+      });
+      return;
+    }
+    downloadBlob(blob,fileName);
+    alert(`${actionName} is not supported directly in this browser. The Excel file has been downloaded instead. You can attach it to email or upload it to OneDrive.`);
+  }catch(err){
+    alert(`${actionName} failed: `+err.message);
+    console.error(err);
+  }
+}
+async function emailExcelFile(){
+  await shareExcelFile("Email export");
+}
+async function saveToOneDrive(){
+  try{
+    const blob=await buildExcelBlob();
+    const fileName=outputFileName();
+    const file=new File([blob],fileName,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+
+    if(window.showSaveFilePicker){
+      const handle=await window.showSaveFilePicker({
+        suggestedName:fileName,
+        types:[{description:"Excel Workbook",accept:{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":[".xlsx"]}}]
+      });
+      const writable=await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      alert("File saved. If you chose a OneDrive folder, it will sync through OneDrive.");
+      return;
+    }
+
+    if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+      await navigator.share({
+        title:"Machine Movement Sheet",
+        text:"Save this machine movement Excel file to OneDrive.",
+        files:[file]
+      });
+      return;
+    }
+
+    downloadBlob(blob,fileName);
+    alert("Direct OneDrive save is not supported in this browser. The Excel file has been downloaded instead. Move or upload it to your OneDrive folder.");
+  }catch(err){
+    alert("OneDrive save failed: "+err.message);
+    console.error(err);
+  }
+}
+function escapeHtml(str){return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+render();
+</script>
+</body>
+</html>

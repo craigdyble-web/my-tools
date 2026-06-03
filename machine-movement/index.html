@@ -431,6 +431,9 @@ async function buildExcelBlob(){
   });
 
   if(docket){
+    const firstOutMachine=machines.find(m=>String(m.movementType||"").toUpperCase()==="OUT") || null;
+    const transportSignature=data.signature || (firstOutMachine && firstOutMachine.signature) || "";
+
     if(String(data.collectingCompany||"").trim()){
       setCell(docket,"A16","Collecting Company");
       setCell(docket,"B16",data.collectingCompany);
@@ -439,13 +442,20 @@ async function buildExcelBlob(){
       setCell(docket,"A18","Collecting Driver");
       setCell(docket,"B18",data.collectionDriver);
     }
-    if(data.signature){
+    if(transportSignature){
       try{
-        const signatureId=workbook.addImage({base64:data.signature,extension:"png"});
-        setCell(docket,"D16","Received By:");
-        docket.addImage(signatureId,{tl:{col:4,row:15},ext:{width:300,height:90}});
+        const signatureId=workbook.addImage({base64:transportSignature,extension:"png"});
+
+        // ExcelJS image coordinates are zero-based.
+        // col:3,row:15 starts around cell D16 on the Transport Docket.
+        setCell(docket,"D15","Received By:");
+        docket.addImage(signatureId,{
+          tl:{col:3,row:15},
+          ext:{width:260,height:80}
+        });
       }catch(err){
         console.error("Signature insert failed",err);
+        throw new Error("Signature could not be added to the Excel sheet. Please clear and re-sign, then export again.");
       }
     }
   }

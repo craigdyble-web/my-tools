@@ -183,10 +183,8 @@ function render(){
       <div class="review-box"><strong>Photos:</strong><br>${data.photos.length} attached</div>
       <div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}">${((data.photoNotes||[])[i]||"").trim()?`<div class="photo-note"><strong>Note:</strong><br>${escapeHtml((data.photoNotes||[])[i]||"")}</div>`:""}</div>`).join("")}</div>
       ${canAdd?'<button class="next" onclick="addAnotherMachine()">Add Another Machine To This Sheet</button>':'<div class="ok">Maximum 8 machines added.</div>'}
-      <button class="next" onclick="downloadExcelFile()">Download Filled Excel File</button>
-      <button class="next" onclick="emailExcelFile()">Email Excel File</button>
-      <button class="next" onclick="saveToOneDrive()">Save / Share To OneDrive</button>
-      <p class="small">Email and OneDrive use your phone/laptop share options. On iPhone, choose Mail, Outlook, or OneDrive from the share sheet. On laptop, download first if your browser does not support direct sharing.</p>
+      <button class="next" onclick="shareExcelFile('Excel export')">Download / Save / Share Excel File</button>
+      <p class="small">Choose Mail, Outlook, OneDrive, Files, Google Drive, WhatsApp, Teams, AirDrop, or Save to Downloads from your device share options. If sharing is not supported, the Excel file will download automatically.</p>
       <button class="back" onclick="backStep()">Back</button>
       ${returnPreviousButton}
       <button class="danger" onclick="clearForm()">Clear Form</button>`;
@@ -424,43 +422,6 @@ async function shareExcelFile(actionName){
     alert(`${actionName} is not supported directly in this browser. The Excel file has been downloaded instead. You can attach it to email or upload it to OneDrive.`);
   }catch(err){
     alert(`${actionName} failed: `+err.message);
-    console.error(err);
-  }
-}
-async function emailExcelFile(){
-  await shareExcelFile("Email export");
-}
-async function saveToOneDrive(){
-  try{
-    const blob=await buildExcelBlob();
-    const fileName=outputFileName();
-    const file=new File([blob],fileName,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-
-    if(window.showSaveFilePicker){
-      const handle=await window.showSaveFilePicker({
-        suggestedName:fileName,
-        types:[{description:"Excel Workbook",accept:{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":[".xlsx"]}}]
-      });
-      const writable=await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      alert("File saved. If you chose a OneDrive folder, it will sync through OneDrive.");
-      return;
-    }
-
-    if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
-      await navigator.share({
-        title:"Machine Movement Sheet",
-        text:"Save this machine movement Excel file to OneDrive.",
-        files:[file]
-      });
-      return;
-    }
-
-    downloadBlob(blob,fileName);
-    alert("Direct OneDrive save is not supported in this browser. The Excel file has been downloaded instead. Move or upload it to your OneDrive folder.");
-  }catch(err){
-    alert("OneDrive save failed: "+err.message);
     console.error(err);
   }
 }

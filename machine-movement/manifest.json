@@ -1,0 +1,11 @@
+{
+  "name": "Machine Movement App",
+  "short_name": "Movement",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#005BBB",
+  "description": "Offline machine movement form with Excel export.",
+  "icons": []
+}

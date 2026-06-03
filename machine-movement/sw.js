@@ -3,9 +3,8 @@ const CACHE_NAME = "machine-movement-offline-v1";
 const OFFLINE_FILES = [
   "./",
   "./index.html",
-  "./manifest.webmanifest",
+  "./manifest.json",
   "./exceljs.min.js",
-  "./template.xlsx",
   "./template.xlsm"
 ];
 

@@ -14,15 +14,80 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <style>
-:root{--blue:#005BBB;--red:#D32F2F;--text:#1f2937;--muted:#667085;--line:#d0d5dd;--bg:#f5f7fb;--card:#ffffff}
+:root{
+  --blue:#005BBB;
+  --blue2:#0047a8;
+  --red:#D32F2F;
+  --red2:#c41414;
+  --green:#149447;
+  --green2:#087a35;
+  --text:#101828;
+  --muted:#667085;
+  --line:#d0d5dd;
+  --bg:#f5f7fb;
+  --card:#ffffff;
+}
+*{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
-.container{max-width:700px;margin:auto;padding:20px}.card{background:var(--card);padding:20px;border-radius:16px;box-shadow:0 8px 24px rgba(16,24,40,.08);border:1px solid #eaecf0}.brand-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}.playnation-logo{display:flex;align-items:center;font-weight:700;font-size:32px;letter-spacing:-1px;line-height:1}.playnation-logo .tile{display:inline-flex;align-items:center;justify-content:center;width:34px;height:42px;color:#fff;margin-right:2px}.playnation-logo .p{background:#8a0f3d}.playnation-logo .l{background:#e30613}.playnation-logo .a{background:#8fb0c4}.playnation-logo .y{background:#263238}.playnation-logo .nation{color:#263238;margin-left:5px;font-weight:500}.brand-header h1{margin:0;color:var(--text);font-size:30px}@media(max-width:600px){.brand-header{gap:10px}.playnation-logo{font-size:24px}.playnation-logo .tile{width:28px;height:34px}.brand-header h1{font-size:26px}}h1{margin-top:0;color:var(--text)}
-input,select,textarea{width:100%;padding:16px;font-size:18px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);box-sizing:border-box}textarea{min-height:80px;resize:vertical;font-family:Arial,sans-serif}.photo-note{border-top:1px solid var(--line);padding:10px;background:#fff}.photo-note label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px;color:var(--text)}input[type="file"]{background:#fff;border:1px dashed var(--blue)}
-button{width:100%;padding:16px;font-size:18px;border:none;border-radius:12px;margin-top:12px;cursor:pointer;font-weight:bold}.next{background:var(--blue);color:#fff}.back{background:var(--red);color:white}.danger{background:var(--red);color:white}.progress{height:10px;background:#e4e7ec;border-radius:10px;margin-bottom:20px;overflow:hidden}.bar{height:100%;background:var(--blue);width:0%}.small{color:var(--muted);font-size:14px;line-height:1.4}.machine-count{text-align:right;color:var(--muted);font-size:14px;line-height:1.4;margin:0 0 12px 0;font-weight:bold}.photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px}.photo-box{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}.photo-box img{width:100%;display:block}.photo-box button{margin:0;border-radius:0;background:var(--red);color:white;font-size:14px;padding:10px}.review-box{background:#fff;border:1px solid var(--line);padding:12px;border-radius:12px;margin:10px 0}.notice{background:#eef4ff;border:1px solid var(--blue);color:#1849a9;padding:12px;border-radius:12px;margin:12px 0}.ok{background:#ecfdf3;border:1px solid #12b76a;color:#027a48;padding:12px;border-radius:12px;margin:12px 0}.error{background:#fef3f2;border:1px solid var(--red);color:#b42318;padding:12px;border-radius:12px;margin:12px 0}.signature-pad{background:#fff;border:2px solid var(--line);border-radius:12px;width:100%;height:280px;touch-action:none;box-sizing:border-box}.signature-preview{background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:10px;padding:8px}.signature-preview img{max-width:100%;height:auto;display:block}.signature-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.signature-actions button{margin-top:12px}@media(max-width:600px){.container{padding:12px}.card{padding:18px}h1{font-size:28px}input,select,textarea,button{font-size:18px;min-height:58px}.photo-grid{grid-template-columns:1fr}.machine-count{text-align:right}}
+.container{max-width:980px;margin:auto;padding:22px}
+.card{background:var(--card);padding:28px;border-radius:16px;box-shadow:0 8px 24px rgba(16,24,40,.10);border:1px solid #eaecf0}
+.brand-header{display:flex;align-items:center;gap:28px;margin-bottom:22px;flex-wrap:wrap}
+.playnation-logo{display:block;max-width:500px;width:52%;min-width:280px;height:auto}
+.brand-header h1{margin:0;color:var(--text);font-size:30px;line-height:1.1;font-weight:800;white-space:nowrap}
+h1{margin-top:0;color:var(--text)}
+h2{font-size:28px;line-height:1.15;margin:22px 0 12px 0}
+label{display:block;font-weight:700;margin-bottom:8px}
+input,select,textarea{width:100%;padding:16px 18px;font-size:20px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--text);box-sizing:border-box}
+input::placeholder, textarea::placeholder{color:#8a8f98}
+textarea{min-height:80px;resize:vertical;font-family:Arial,sans-serif}
+input[type="file"]{background:#fff;border:1px dashed var(--blue)}
+button{width:100%;padding:16px;font-size:20px;border:none;border-radius:9px;margin-top:12px;cursor:pointer;font-weight:800}
+.next{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.back{background:linear-gradient(135deg,var(--red),var(--red2));color:white}
+.danger{background:linear-gradient(135deg,var(--red),var(--red2));color:white}
+.green,.signature-btn{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff}
+button:disabled{opacity:.55;cursor:not-allowed}
+.progress{height:16px;background:#e4e7ec;border-radius:10px;margin-bottom:12px;overflow:hidden}
+.bar{height:100%;background:linear-gradient(135deg,var(--blue),var(--blue2));width:0%}
+.step-text{text-align:center;color:var(--blue);font-size:20px;font-weight:700;margin:10px 0 20px}
+.nav-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+.status-row{border-top:1px solid #eaecf0;margin-top:22px;padding-top:12px;text-align:right;font-size:22px;font-weight:800;color:var(--text)}
+.helper-buttons{margin-top:10px}
+.helper-buttons button{margin-top:10px}
+.small{color:var(--muted);font-size:18px;line-height:1.45}
+.machine-count{text-align:right;color:var(--muted);font-size:16px;line-height:1.4;margin:0 0 12px 0;font-weight:bold}
+.photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px}
+.photo-box{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.photo-box img{width:100%;display:block}
+.photo-box button{margin:0;border-radius:0;background:var(--red);color:white;font-size:14px;padding:10px}
+.photo-note{border-top:1px solid var(--line);padding:10px;background:#fff}
+.photo-note label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px;color:var(--text)}
+.review-box{background:#fff;border:1px solid var(--line);padding:14px;border-radius:12px;margin:10px 0}
+.notice{background:#f8fbff;border:1px solid #4e8dff;color:#0047bb;padding:14px 18px;border-radius:9px;margin:18px 0;font-size:20px}
+.ok{background:#ecfdf3;border:1px solid #12b76a;color:#027a48;padding:12px;border-radius:12px;margin:12px 0}
+.error{background:#fef3f2;border:1px solid var(--red);color:#b42318;padding:12px;border-radius:12px;margin:12px 0}
+.transport-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.signature-pad{background:#fff;border:2px solid #98a2b3;border-radius:9px;width:100%;height:190px;touch-action:none;box-sizing:border-box}
+.signature-preview{background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:10px;padding:8px}
+.signature-preview img{max-width:100%;height:auto;display:block}
+.signature-actions{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.signature-actions button{margin-top:12px}
+@media(max-width:760px){
+  .container{padding:12px}
+  .card{padding:18px}
+  .brand-header{gap:12px}
+  .playnation-logo{width:100%;max-width:430px;min-width:0}
+  .brand-header h1{font-size:26px;white-space:normal}
+  h2{font-size:26px}
+  input,select,textarea,button{font-size:18px;min-height:58px}
+  .nav-row,.transport-grid,.signature-actions{grid-template-columns:1fr}
+  .photo-grid{grid-template-columns:1fr}
+  .machine-count,.status-row{text-align:right;font-size:18px}
+}
 </style>
 </head>
 <body>
-<div class="container"><div class="card"><div class="brand-header"><div class="playnation-logo" aria-label="playnation logo"><span class="tile p">p</span><span class="tile l">l</span><span class="tile a">a</span><span class="tile y">y</span><span class="nation">nation</span></div><h1>Machine Movement App</h1></div><div class="progress"><div class="bar" id="bar"></div></div><div id="app"></div></div></div>
+<div class="container"><div class="card"><div class="brand-header"><img class="playnation-logo" src="./playnation.png" alt="PLAYNATION logo"><h1>Machine Movement App</h1></div><div class="progress"><div class="bar" id="bar"></div></div><div id="stepText" class="step-text"></div><div id="app"></div></div></div>
 <script>
 const steps=[
   ["Current Site","currentSite","text"],
@@ -163,11 +228,13 @@ function render(){
   const app=document.getElementById("app");
   if(current==="signature"){
     document.getElementById("bar").style.width="100%";
-    app.innerHTML=`<h2>Signature</h2><p class="small">Sign inside the box, then press Done. This will be added to the Transport Docket section of the Excel file.</p><canvas id="signatureCanvas" class="signature-pad"></canvas><div class="signature-actions"><button class="back" onclick="clearSignaturePad()">Clear</button><button class="next" onclick="saveSignaturePad()">Done</button></div><button class="back" onclick="cancelSignaturePad()">Back</button>`;
+    document.getElementById("stepText").textContent="Signature";
+    app.innerHTML=`<h2>Authorisation - Signature</h2><p class="small">Sign inside the box, then press Done. This will be added to the Transport Docket section of the Excel file.</p><canvas id="signatureCanvas" class="signature-pad"></canvas><div class="signature-actions"><button class="green" onclick="clearSignaturePad()">Clear Signature</button><button class="green" onclick="saveSignaturePad()">Done</button></div><button class="back" onclick="cancelSignaturePad()">Back</button>`;
     setTimeout(setupSignaturePad,50);
     return;
   }
-  document.getElementById("bar").style.width=((current)/steps.length*100)+"%";
+  document.getElementById("bar").style.width=((current+1)/steps.length*100)+"%";
+  document.getElementById("stepText").textContent=`Step ${Math.min(current+1,steps.length)} of ${steps.length}`;
   const savedCount=Array.isArray(data.machines)?data.machines.length:0;
   const returnPreviousButton=savedCount>0?'<button class="back" onclick="returnToPreviousMachine()">Return To Previous Machine</button>':'';
   const machineCountHtml=`<p class="machine-count">Machine ${Math.min(savedCount+1,MAX_MACHINES)} of ${MAX_MACHINES}</p>`;
@@ -187,9 +254,21 @@ function render(){
       inputHtml=`<input id="field" value="${escapeHtml(data[key]||'')}" autocomplete="off">`;
     }
 
-    app.innerHTML=`<h2>${title}</h2>${machineCountHtml}${inputHtml}<button class="next" onclick="nextStep()">Next</button>${current>0?'<button class="back" onclick="backStep()">Back</button>':''}${returnPreviousButton}${current===0?'<button class="danger" onclick="clearForm()">Clear Form</button>':''}`;
+    app.innerHTML=`<h2>${title}</h2>${inputHtml}
+      <div class="nav-row">
+        <button class="back" onclick="backStep()" ${current===0?'disabled':''}>← Back</button>
+        <button class="next" onclick="nextStep()">Next →</button>
+      </div>
+      <div class="status-row">Machines added: ${savedCount} / ${MAX_MACHINES}</div>
+      <div class="helper-buttons">
+        ${savedCount>0?'<button class="next" onclick="current=9;render()">Review Machines Added To This Sheet</button>':''}
+        <button class="next" onclick="addAnotherMachine()">Add Another Machine To This Sheet</button>
+        <button class="next" onclick="clearForm()">Clear All Data</button>
+      </div>
+      <div class="notice">Please review all machine details before adding to the sheet.</div>
+      ${returnPreviousButton}`;
   }else if(current===8){
-    app.innerHTML=`<h2>Machine Photos</h2>${machineCountHtml}<p class="small">Take or upload up to 5 photos of the machine. Add a short note under any photo, for example damage or marks.</p><input id="photoInput" type="file" accept="image/*" capture="environment" multiple onchange="addPhotos(event)"><p class="small">${data.photos.length} of 5 photos added</p><div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}"><div class="photo-note"><label>Photo ${i+1} Note</label><textarea placeholder="Example: Damage on left side panel" oninput="updatePhotoNote(${i}, this.value)">${escapeHtml((data.photoNotes||[])[i]||'')}</textarea></div><button onclick="removePhoto(${i})">Remove photo</button></div>`).join("")}</div><button class="next" onclick="nextStep()">Next</button><button class="back" onclick="backStep()">Back</button>${returnPreviousButton}`;
+    app.innerHTML=`<h2>Machine Photos</h2>${machineCountHtml}<p class="small">Take or upload up to 5 photos of the machine. Add a short note under any photo, for example damage or marks.</p><input id="photoInput" type="file" accept="image/*" capture="environment" multiple onchange="addPhotos(event)"><p class="small">${data.photos.length} of 5 photos added</p><div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}"><div class="photo-note"><label>Photo ${i+1} Note</label><textarea placeholder="Example: Damage on left side panel" oninput="updatePhotoNote(${i}, this.value)">${escapeHtml((data.photoNotes||[])[i]||'')}</textarea></div><button onclick="removePhoto(${i})">Remove photo</button></div>`).join("")}</div><div class="nav-row"><button class="back" onclick="backStep()">← Back</button><button class="next" onclick="nextStep()">Next →</button></div>${returnPreviousButton}`;
   }else{
     const exportCount=machinesForExport().length;
     const canAdd=savedCount<MAX_MACHINES;
@@ -206,7 +285,7 @@ function render(){
       <div class="review-box"><strong>Serial Number:</strong><br>${escapeHtml(data.serial||'')}</div>
       <div class="review-box"><strong>Photos:</strong><br>${data.photos.length} attached</div>
       <div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}">${((data.photoNotes||[])[i]||"").trim()?`<div class="photo-note"><strong>Note:</strong><br>${escapeHtml((data.photoNotes||[])[i]||"")}</div>`:""}</div>`).join("")}</div>
-      ${needsTransportDetails()?`<div class="review-box"><strong>Transport Details</strong><br><br><label><strong>Collecting Company:</strong></label><input id="collectingCompany" value="${escapeHtml(data.collectingCompany||'')}" oninput="updateTransportDetail('collectingCompany',this.value)" autocomplete="off"><br><br><label><strong>Collection Driver:</strong></label><input id="collectionDriver" value="${escapeHtml(data.collectionDriver||'')}" oninput="updateTransportDetail('collectionDriver',this.value)" autocomplete="off"></div><div class="review-box"><strong>Signature:</strong><br>${data.signature?"Signature saved":"No signature added yet"}${data.signature?`<div class="signature-preview"><img src="${data.signature}" alt="Saved signature"></div>`:""}</div><button class="next" onclick="openSignaturePad()">Signature</button>`:""}
+      ${needsTransportDetails()?`<h2>OUT Movement - Transport Details</h2><div class="transport-grid"><div><label><strong>Collecting Company</strong></label><input id="collectingCompany" placeholder="Enter collecting company" value="${escapeHtml(data.collectingCompany||'')}" oninput="updateTransportDetail('collectingCompany',this.value)" autocomplete="off"></div><div><label><strong>Collection Driver</strong></label><input id="collectionDriver" placeholder="Enter collection driver" value="${escapeHtml(data.collectionDriver||'')}" oninput="updateTransportDetail('collectionDriver',this.value)" autocomplete="off"></div></div><h2>Authorisation - Signature</h2><div class="review-box"><strong>Signature:</strong><br>${data.signature?"Signature saved":"No signature added yet"}${data.signature?`<div class="signature-preview"><img src="${data.signature}" alt="Saved signature"></div>`:""}</div><div class="signature-actions"><button class="signature-btn" onclick="openSignaturePad()">✎ Add Signature</button><button class="signature-btn" onclick="clearSavedSignature()">⌫ Clear Signature</button></div>`:""}
       ${canAdd?'<button class="next" onclick="addAnotherMachine()">Add Another Machine To This Sheet</button>':'<div class="ok">Maximum 8 machines added.</div>'}
       <button class="next" onclick="shareExcelFile('Excel export')">Download / Save / Share Excel File</button>
       <p class="small">Choose Mail, Outlook, OneDrive, Files, Google Drive, WhatsApp, Teams, AirDrop, or Save to Downloads from your device share options. If sharing is not supported, the Excel file will download automatically.</p>
@@ -253,6 +332,11 @@ function setupSignaturePad(){
   canvas.addEventListener("touchstart",start,{passive:false});
   canvas.addEventListener("touchmove",move,{passive:false});
   canvas.addEventListener("touchend",end,{passive:false});
+}
+function clearSavedSignature(){
+  data.signature="";
+  save();
+  render();
 }
 function clearSignaturePad(){
   data.signature="";
@@ -523,16 +607,24 @@ async function shareExcelFile(actionName){
     const blob=await buildExcelBlob();
     const fileName=outputFileName();
     const file=new File([blob],fileName,{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+
+    // Mobile/iPhone: use the share sheet when allowed.
+    // Laptop/desktop: if sharing is blocked or denied, fall back to normal download.
     if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
-      await navigator.share({
-        title:"Machine Movement Sheet",
-        text:"Machine movement Excel file attached.",
-        files:[file]
-      });
-      return;
+      try{
+        await navigator.share({
+          title:"Machine Movement Sheet",
+          text:"Machine movement Excel file attached.",
+          files:[file]
+        });
+        return;
+      }catch(shareErr){
+        console.warn("Share failed, falling back to download:", shareErr);
+      }
     }
+
     downloadBlob(blob,fileName);
-    alert(`${actionName} is not supported directly in this browser. The Excel file has been downloaded instead. You can attach it to email or upload it to OneDrive.`);
+
   }catch(err){
     alert(`${actionName} failed: `+err.message);
     console.error(err);

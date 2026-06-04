@@ -1,4 +1,4 @@
-const CACHE_NAME = "machine-movement-offline-v16";
+const CACHE_NAME = "machine-movement-offline-v17";
 
 const OFFLINE_FILES = [
   "./",
@@ -11,18 +11,9 @@ const OFFLINE_FILES = [
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache => {
-      for (const file of OFFLINE_FILES) {
-        try {
-          const response = await fetch(file, { cache: "reload" });
-          if (response.ok) {
-            await cache.put(file, response);
-          }
-        } catch (err) {
-          console.warn("Failed to cache:", file, err);
-        }
-      }
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(OFFLINE_FILES))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -40,18 +31,20 @@ self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-
-      return fetch(event.request).then(response => {
+    fetch(event.request)
+      .then(response => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         return response;
-      }).catch(() => {
-        if (event.request.mode === "navigate") {
-          return caches.match("./index.html");
-        }
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request).then(cached => {
+          if (cached) return cached;
+
+          if (event.request.mode === "navigate") {
+            return caches.match("./index.html");
+          }
+        });
+      })
   );
 });

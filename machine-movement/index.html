@@ -419,54 +419,71 @@ async function addPhotos(event){
 function updatePhotoNote(index,value){if(!Array.isArray(data.photoNotes)) data.photoNotes=[];data.photoNotes[index]=value;save();}
 function removePhoto(index){data.photos.splice(index,1);if(Array.isArray(data.photoNotes)) data.photoNotes.splice(index,1);save();render();}
 function clearForm(){if(confirm("Clear this movement form and all added machines?")){data={machines:[],photos:[],photoNotes:[],signature:"",collectingCompany:"",collectionDriver:"",movementDate:new Date().toISOString().slice(0,10)};save();current=0;templateBuffer=null;templateName="";render();}}
+async function saveTemplateForOffline(){
+  try{
+    const response = await fetch("./template.xlsm");
+    if(!response.ok) throw new Error("template.xlsm not found online");
+    const buffer = await response.arrayBuffer();
+    const bytes = Array.from(new Uint8Array(buffer));
+    localStorage.setItem("offlineTemplateXlsm", JSON.stringify(bytes));
+    console.log("Excel template saved for offline use");
+  }catch(err){
+    console.warn("Could not save template for offline:", err);
+  }
+}
+
 async function loadStoredTemplate(){
   if(templateBuffer) return templateBuffer;
 
-  let lastError = "";
-
-  // IMPORTANT:
-  // Do NOT use cache:"no-store" here.
-  // "no-store" can bypass the service worker/cache on phones, which is why
-  // the app works online but cannot find template.xlsm offline.
-
-  for(const fileName of storedTemplateFiles){
-    const pathsToTry = [
-      `./${fileName}`,
-      fileName
-    ];
-
-    for(const path of pathsToTry){
-      try{
-        const response = await fetch(path);
-        if(response && response.ok){
-          templateBuffer = await response.arrayBuffer();
-          templateName = fileName;
-          return templateBuffer;
-        }
-        if(response){
-          lastError = `${path}: ${response.status}`;
-        }
-      }catch(err){
-        lastError = `${path}: ${err.message}`;
-      }
-
-      // Extra fallback: read directly from Cache Storage if fetch fails offline.
-      try{
-        if("caches" in window){
-          const cached = await caches.match(path);
-          if(cached && cached.ok){
-            templateBuffer = await cached.arrayBuffer();
-            templateName = fileName;
-            return templateBuffer;
-          }
-        }
-      }catch(cacheErr){
-        lastError = `${path}: ${cacheErr.message}`;
-      }
+  // 1. Try the Excel template saved inside browser storage first.
+  // This is more reliable than relying on the service worker to cache template.xlsm.
+  try{
+    const saved = localStorage.getItem("offlineTemplateXlsm");
+    if(saved){
+      const bytes = new Uint8Array(JSON.parse(saved));
+      templateBuffer = bytes.buffer;
+      templateName = "template.xlsm";
+      return templateBuffer;
     }
+  }catch(err){
+    console.warn("Saved offline template failed:", err);
   }
 
-  throw new Error("Offline template not found. Open the app online once after uploading template.xlsm, wait 20 seconds, then try offline again. Last error: " + lastError);
+  // 2. If online, fetch template.xlsm and save it for next time.
+  try{
+    const response = await fetch("./template.xlsm");
+    if(response && response.ok){
+      templateBuffer = await response.arrayBuffer();
+
+      try{
+        const bytes = Array.from(new Uint8Array(templateBuffer));
+        localStorage.setItem("offlineTemplateXlsm", JSON.stringify(bytes));
+      }catch(saveErr){
+        console.warn("Template loaded but could not be saved offline:", saveErr);
+      }
+
+      templateName = "template.xlsm";
+      return templateBuffer;
+    }
+  }catch(err){
+    console.warn("Online template fetch failed:", err);
+  }
+
+  // 3. Last fallback: try Cache Storage, if the browser/service worker has it.
+  try{
+    if("caches" in window){
+      const cached = await caches.match("./template.xlsm") || await caches.match("template.xlsm");
+      if(cached && cached.ok){
+        templateBuffer = await cached.arrayBuffer();
+        templateName = "template.xlsm";
+        return templateBuffer;
+      }
+    }
+  }catch(cacheErr){
+    console.warn("Cache template lookup failed:", cacheErr);
+  }
+
+  throw new Error("Excel template not saved offline yet. Open the app online once, wait 20 seconds, then press Download once while online. After that Excel export will work offline.");
 }
 function setCell(ws,address,value){const cell=ws.getCell(address);cell.value=value || "";}
 function getSheet(workbook,names){for(const n of names){const ws=workbook.getWorksheet(n);if(ws)return ws;}return workbook.worksheets[0];}
@@ -668,6 +685,7 @@ async function shareExcelFile(actionName){
   }
 }
 function escapeHtml(str){return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+saveTemplateForOffline();
 render();
 </script>
 </body>

@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="./exceljs.min.js"></script>
 <style>
 :root{
   --blue:#005BBB;
@@ -421,17 +421,52 @@ function removePhoto(index){data.photos.splice(index,1);if(Array.isArray(data.ph
 function clearForm(){if(confirm("Clear this movement form and all added machines?")){data={machines:[],photos:[],photoNotes:[],signature:"",collectingCompany:"",collectionDriver:"",movementDate:new Date().toISOString().slice(0,10)};save();current=0;templateBuffer=null;templateName="";render();}}
 async function loadStoredTemplate(){
   if(templateBuffer) return templateBuffer;
-  let lastError="";
+
+  let lastError = "";
+
+  // IMPORTANT:
+  // Do NOT use cache:"no-store" here.
+  // "no-store" can bypass the service worker/cache on phones, which is why
+  // the app works online but cannot find template.xlsm offline.
+
   for(const fileName of storedTemplateFiles){
-    try{
-      const response=await fetch(fileName,{cache:"no-store"});
-      if(!response.ok){lastError=`${fileName}: ${response.status}`; continue;}
-      templateBuffer=await response.arrayBuffer();
-      templateName=fileName;
-      return templateBuffer;
-    }catch(err){lastError=err.message;}
+    const pathsToTry = [
+      `./${fileName}`,
+      fileName
+    ];
+
+    for(const path of pathsToTry){
+      try{
+        const response = await fetch(path);
+        if(response && response.ok){
+          templateBuffer = await response.arrayBuffer();
+          templateName = fileName;
+          return templateBuffer;
+        }
+        if(response){
+          lastError = `${path}: ${response.status}`;
+        }
+      }catch(err){
+        lastError = `${path}: ${err.message}`;
+      }
+
+      // Extra fallback: read directly from Cache Storage if fetch fails offline.
+      try{
+        if("caches" in window){
+          const cached = await caches.match(path);
+          if(cached && cached.ok){
+            templateBuffer = await cached.arrayBuffer();
+            templateName = fileName;
+            return templateBuffer;
+          }
+        }
+      }catch(cacheErr){
+        lastError = `${path}: ${cacheErr.message}`;
+      }
+    }
   }
-  throw new Error("Stored template not found. Put template.xlsm or template.xlsx in the same GitHub folder as this HTML file. " + lastError);
+
+  throw new Error("Offline template not found. Open the app online once after uploading template.xlsm, wait 20 seconds, then try offline again. Last error: " + lastError);
 }
 function setCell(ws,address,value){const cell=ws.getCell(address);cell.value=value || "";}
 function getSheet(workbook,names){for(const n of names){const ws=workbook.getWorksheet(n);if(ws)return ws;}return workbook.worksheets[0];}

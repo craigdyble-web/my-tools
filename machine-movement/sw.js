@@ -1,4 +1,4 @@
-const CACHE_NAME = "machine-movement-offline-v9";
+const CACHE_NAME = "machine-movement-offline-v15";
 
 const OFFLINE_FILES = [
   "./",

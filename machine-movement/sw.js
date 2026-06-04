@@ -1,4 +1,4 @@
-const CACHE_NAME = "machine-movement-offline-v18";
+const CACHE_NAME = "machine-movement-offline-v20";
 
 const OFFLINE_FILES = [
   "./",
@@ -6,7 +6,6 @@ const OFFLINE_FILES = [
   "./manifest.json",
   "./sw.js",
   "./exceljs.min.js",
-  "./template.xlsm",
   "./playnation.png",
   "./icon-192.png",
   "./icon-512.png",
@@ -15,20 +14,11 @@ const OFFLINE_FILES = [
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache => {
-      for (const file of OFFLINE_FILES) {
-        try {
-          const response = await fetch(file, { cache: "reload" });
-          if (response.ok) {
-            await cache.put(file, response);
-          } else {
-            console.warn("Not cached:", file, response.status);
-          }
-        } catch (err) {
-          console.warn("Failed to cache:", file, err);
-        }
-      }
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then(cache => Promise.allSettled(
+        OFFLINE_FILES.map(file => cache.add(file))
+      ))
+      .then(() => self.skipWaiting())
   );
 });
 

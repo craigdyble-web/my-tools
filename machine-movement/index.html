@@ -150,8 +150,9 @@ function currentMachineComplete(){
   return !!(data.currentSite && data.movementDate && data.movementType && data.movementPlace && data.machineName && data.model && data.stock && data.serial);
 }
 function needsTransportDetails(){
-  const savedCount=Array.isArray(data.machines)?data.machines.length:0;
-  return savedCount===0 && movementTypeDisplay()==="OUT";
+  const currentIsOut = movementTypeDisplay()==="OUT";
+  const savedHasOut = Array.isArray(data.machines) && data.machines.some(m=>String(m.movementType||"").toUpperCase()==="OUT");
+  return currentIsOut || savedHasOut;
 }
 function transportDetailsComplete(){
   if(!needsTransportDetails()) return true;
@@ -285,7 +286,8 @@ function render(){
       <div class="review-box"><strong>Serial Number:</strong><br>${escapeHtml(data.serial||'')}</div>
       <div class="review-box"><strong>Photos:</strong><br>${data.photos.length} attached</div>
       <div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}">${((data.photoNotes||[])[i]||"").trim()?`<div class="photo-note"><strong>Note:</strong><br>${escapeHtml((data.photoNotes||[])[i]||"")}</div>`:""}</div>`).join("")}</div>
-      ${needsTransportDetails()?`<h2>OUT Movement - Transport Details</h2><div class="transport-grid"><div><label><strong>Collecting Company</strong></label><input id="collectingCompany" placeholder="Enter collecting company" value="${escapeHtml(data.collectingCompany||'')}" oninput="updateTransportDetail('collectingCompany',this.value)" autocomplete="off"></div><div><label><strong>Collection Driver</strong></label><input id="collectionDriver" placeholder="Enter collection driver" value="${escapeHtml(data.collectionDriver||'')}" oninput="updateTransportDetail('collectionDriver',this.value)" autocomplete="off"></div></div><h2>Authorisation - Signature</h2><div class="review-box"><strong>Signature:</strong><br>${data.signature?"Signature saved":"No signature added yet"}${data.signature?`<div class="signature-preview"><img src="${data.signature}" alt="Saved signature"></div>`:""}</div><div class="signature-actions"><button class="signature-btn" onclick="openSignaturePad()">✎ Add Signature</button><button class="signature-btn" onclick="clearSavedSignature()">⌫ Clear Signature</button></div>`:""}
+      ${needsTransportDetails()?`<h2>OUT Movement - Transport Details</h2><div class="transport-grid"><div><label><strong>Collecting Company</strong></label><input id="collectingCompany" placeholder="Enter collecting company" value="${escapeHtml(data.collectingCompany||'')}" oninput="updateTransportDetail('collectingCompany',this.value)" autocomplete="off"></div><div><label><strong>Collection Driver</strong></label><input id="collectionDriver" placeholder="Enter collection driver" value="${escapeHtml(data.collectionDriver||'')}" oninput="updateTransportDetail('collectionDriver',this.value)" autocomplete="off"></div></div>`:""}
+      <h2>Authorisation - Signature</h2><div class="review-box"><strong>Signature:</strong><br>${data.signature?"Signature saved":"No signature added yet"}${data.signature?`<div class="signature-preview"><img src="${data.signature}" alt="Saved signature"></div>`:""}</div><div class="signature-actions"><button class="signature-btn" onclick="openSignaturePad()">✎ Add Signature</button><button class="signature-btn" onclick="clearSavedSignature()">⌫ Clear Signature</button></div>
       ${canAdd?'<button class="next" onclick="addAnotherMachine()">Add Another Machine To This Sheet</button>':'<div class="ok">Maximum 8 machines added.</div>'}
       <button class="next" onclick="shareExcelFile('Excel export')">Download / Save / Share Excel File</button>
       <p class="small">Choose Mail, Outlook, OneDrive, Files, Google Drive, WhatsApp, Teams, AirDrop, or Save to Downloads from your device share options. If sharing is not supported, the Excel file will download automatically.</p>
@@ -361,7 +363,7 @@ function nextStep(){
     if(key==="movementType"){
       data.movementType=data.movementType.toUpperCase();
       data.movementPlace="";
-      if(data.movementType!=="OUT"){ data.signature=""; data.collectingCompany=""; data.collectionDriver=""; }
+      if(data.movementType!=="OUT"){ data.collectingCompany=""; data.collectionDriver=""; }
     }
     save();
   }
@@ -515,8 +517,8 @@ async function buildExcelBlob(){
   });
 
   if(docket){
-    const firstOutMachine=machines.find(m=>String(m.movementType||"").toUpperCase()==="OUT") || null;
-    const transportSignature=data.signature || (firstOutMachine && firstOutMachine.signature) || "";
+    const firstSignatureMachine=machines.find(m=>m.signature) || null;
+    const transportSignature=data.signature || (firstSignatureMachine && firstSignatureMachine.signature) || "";
 
     if(String(data.collectingCompany||"").trim()){
       setCell(docket,"A16","Collecting Company");

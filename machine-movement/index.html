@@ -62,6 +62,23 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .photo-box button{margin:0;border-radius:0;background:var(--red);color:white;font-size:14px;padding:10px}
 .photo-note{border-top:1px solid var(--line);padding:10px;background:#fff}
 .photo-note label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px;color:var(--text)}
+.photo-upload-btn{
+  display:block;
+  width:100%;
+  padding:16px;
+  text-align:center;
+  font-size:18px;
+  font-weight:700;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:#ffffff;
+  color:var(--text);
+  cursor:pointer;
+  margin-bottom:12px;
+}
+.photo-upload-btn:hover{
+  background:#f8f9fb;
+}
 .review-box{background:#fff;border:1px solid var(--line);padding:14px;border-radius:12px;margin:10px 0}
 .notice{background:#f8fbff;border:1px solid #4e8dff;color:#0047bb;padding:14px 18px;border-radius:9px;margin:18px 0;font-size:20px}
 .ok{background:#ecfdf3;border:1px solid #12b76a;color:#027a48;padding:12px;border-radius:12px;margin:12px 0}
@@ -269,7 +286,7 @@ function render(){
       <div class="notice">Please review all machine details before adding to the sheet.</div>
       ${returnPreviousButton}`;
   }else if(current===8){
-    app.innerHTML=`<h2>Machine Photos</h2>${machineCountHtml}<p class="small">Take or upload up to 5 photos of the machine. Add a short note under any photo, for example damage or marks.</p><input id="photoInput" type="file" accept="image/*" capture="environment" multiple onchange="addPhotos(event)"><p class="small">${data.photos.length} of 5 photos added</p><div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}"><div class="photo-note"><label>Photo ${i+1} Note</label><textarea placeholder="Example: Damage on left side panel" oninput="updatePhotoNote(${i}, this.value)">${escapeHtml((data.photoNotes||[])[i]||'')}</textarea></div><button onclick="removePhoto(${i})">Remove photo</button></div>`).join("")}</div><div class="nav-row"><button class="back" onclick="backStep()">← Back</button><button class="next" onclick="nextStep()">Next →</button></div>${returnPreviousButton}`;
+    app.innerHTML=`<h2>Machine Photos</h2>${machineCountHtml}<p class="small">Take or upload up to 5 photos of the machine. Press "Add Photo / Take Picture" again for each additional photo. Add a short note under any photo for damage, marks or comments.</p><label for="photoInput" class="photo-upload-btn">📷 Add Photo / Take Picture</label><input id="photoInput" type="file" accept="image/*" capture="environment" multiple onchange="addPhotos(event)" style="display:none;"><p class="small">${data.photos.length} of 5 photos added</p><div class="photo-grid">${data.photos.map((p,i)=>`<div class="photo-box"><img src="${p}"><div class="photo-note"><label>Photo ${i+1} Note</label><textarea placeholder="Example: Damage on left side panel" oninput="updatePhotoNote(${i}, this.value)">${escapeHtml((data.photoNotes||[])[i]||'')}</textarea></div><button onclick="removePhoto(${i})">Remove photo</button></div>`).join("")}</div>${data.photos.length >= 5 ? '<div class="ok">Maximum 5 photos added.</div>' : '<p class="small">Press "Add Photo / Take Picture" again to add another photo.</p>'}<div class="nav-row"><button class="back" onclick="backStep()">← Back</button><button class="next" onclick="nextStep()">Next →</button></div>${returnPreviousButton}`;
   }else{
     const exportCount=machinesForExport().length;
     const canAdd=savedCount<MAX_MACHINES;
@@ -418,6 +435,15 @@ async function addPhotos(event){
 }
 function updatePhotoNote(index,value){if(!Array.isArray(data.photoNotes)) data.photoNotes=[];data.photoNotes[index]=value;save();}
 function removePhoto(index){data.photos.splice(index,1);if(Array.isArray(data.photoNotes)) data.photoNotes.splice(index,1);save();render();}
+function triggerPhotoPicker(){
+  const input=document.getElementById("photoInput");
+  if(!input) return;
+  if(data.photos.length>=5){
+    alert("Maximum 5 photos allowed.");
+    return;
+  }
+  input.click();
+}
 function clearForm(){if(confirm("Clear this movement form and all added machines?")){data={machines:[],photos:[],photoNotes:[],signature:"",collectingCompany:"",collectionDriver:"",movementDate:new Date().toISOString().slice(0,10)};save();current=0;templateBuffer=null;templateName="";render();}}
 async function saveTemplateForOffline(){
   try{

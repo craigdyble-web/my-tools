@@ -246,7 +246,38 @@ function showReport(){let box=$("reportList");box.innerHTML="";$("csvBox").value
 function downloadCSV(){let blob=new Blob([makeCSV()],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="final_categorised_collection_report.csv";a.click()}
 function copyCSV(){navigator.clipboard.writeText(makeCSV()).then(()=>alert("Copied"))}
 function resetMetersSafety(){if(!clearMetersArmed){clearMetersArmed=true;$("clearMetersBtn").textContent="CONFIRM";$("clearMetersBtn").classList.remove("red");$("clearMetersBtn").classList.add("amber");setStatus("Press CONFIRM to clear saved meter readings.");setTimeout(()=>{if(clearMetersArmed){clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red")}},5000);return}Object.keys(entries).forEach(k=>{entries[k].meters=["","","",""];entries[k].meter="";entries[k].meterDone=false});clearMetersArmed=false;$("clearMetersBtn").textContent="CLEAR METERS";$("clearMetersBtn").classList.remove("amber");$("clearMetersBtn").classList.add("red");save();renderPreview();setStatus("Saved meter readings cleared. Route remains loaded.")}
-async function startScanner(){if(barcode){openBarcode();return}if(typeof Html5Qrcode==="undefined"){alert("Scanner library has not loaded yet. Refresh or use MANUAL INPUT.");return}try{$("cameraBox").style.display="block";$("cameraBox").classList.add("scanTarget");document.body.classList.add("scanActive");document.body.classList.add("scannerFullscreen");document.body.classList.add("scannerFullscreen");if(html5Scanner){try{await html5Scanner.stop()}catch(e){}try{html5Scanner.clear()}catch(e){}html5Scanner=null}html5Scanner=new Html5Qrcode("qrReader", {
+async function getBestCameraId(){
+  try{
+    if(!Html5Qrcode.getCameras) return null;
+    const cameras = await Html5Qrcode.getCameras();
+    if(!cameras || !cameras.length) return null;
+    const backCam = cameras.find(c => /back|rear|environment|wide|camera 0/i.test(c.label || ""));
+    return (backCam || cameras[cameras.length - 1]).id;
+  }catch(e){
+    return null;
+  }
+}
+
+async function startScanner(){
+  if(barcode){openBarcode();return}
+  if(typeof Html5Qrcode==="undefined"){
+    alert("Scanner library has not loaded yet. Refresh or use MANUAL INPUT.");
+    return;
+  }
+  try{
+    $("cameraBox").style.display="block";
+    $("cameraBox").classList.add("scanTarget");
+    document.body.classList.add("scanActive");
+    document.body.classList.add("scannerFullscreen");
+
+    if(html5Scanner){
+      try{await html5Scanner.stop()}catch(e){}
+      try{html5Scanner.clear()}catch(e){}
+      html5Scanner=null;
+    }
+
+    html5Scanner=new Html5Qrcode("qrReader", {
+      verbose:false,
       formatsToSupport: [
         Html5QrcodeSupportedFormats.QR_CODE,
         Html5QrcodeSupportedFormats.CODE_128,
@@ -254,7 +285,51 @@ async function startScanner(){if(barcode){openBarcode();return}if(typeof Html5Qr
         Html5QrcodeSupportedFormats.EAN_13,
         Html5QrcodeSupportedFormats.EAN_8
       ]
-    });await html5Scanner.start({facingMode:"environment"},{fps:12,qrbox: function(viewfinderWidth, viewfinderHeight){return {width: Math.floor(viewfinderWidth*0.82), height: 190};}},async decodedText=>{let code=String(decodedText||"").trim();if(!code)return;if(navigator.vibrate)navigator.vibrate([80,40,80]);await stopScanner();openCode(code)},()=>{})}catch(e){alert("Camera blocked or scanner could not start. Use MANUAL INPUT.")}}
+    });
+
+    const cameraId = await getBestCameraId();
+    const cameraConfig = cameraId ? { deviceId: { exact: cameraId } } : { facingMode: { exact: "environment" } };
+
+    const scanConfig = {
+      fps:18,
+      aspectRatio:1.7777778,
+      disableFlip:true,
+      qrbox:function(viewfinderWidth, viewfinderHeight){
+        return {
+          width:Math.floor(viewfinderWidth*0.90),
+          height:220
+        };
+      },
+      videoConstraints:{
+        facingMode:{ exact:"environment" },
+        width:{ ideal:1920 },
+        height:{ ideal:1080 },
+        audio:false
+      }
+    };
+
+    try{
+      await html5Scanner.start(cameraConfig, scanConfig, async decodedText=>{
+        let code=String(decodedText||"").trim();
+        if(!code)return;
+        if(navigator.vibrate)navigator.vibrate([80,40,80]);
+        await stopScanner();
+        openCode(code);
+      },()=>{});
+    }catch(firstError){
+      // iPhone fallback: some Safari versions reject exact rear-camera constraints.
+      await html5Scanner.start({facingMode:"environment"}, scanConfig, async decodedText=>{
+        let code=String(decodedText||"").trim();
+        if(!code)return;
+        if(navigator.vibrate)navigator.vibrate([80,40,80]);
+        await stopScanner();
+        openCode(code);
+      },()=>{});
+    }
+  }catch(e){
+    alert("Camera blocked or scanner could not start. Check Safari Camera permission, then try again. Use MANUAL INPUT as backup.");
+  }
+}
 async function stopScanner(){if(html5Scanner){try{await html5Scanner.stop()}catch(e){}try{html5Scanner.clear()}catch(e){}html5Scanner=null}if($("cameraBox")){$("cameraBox").style.display="none";$("cameraBox").classList.remove("scanTarget")}document.body.classList.remove("scanActive");document.body.classList.remove("scannerFullscreen");document.body.classList.remove("scannerFullscreen")}
 
 $("file").addEventListener("change",e=>{let f=e.target.files&&e.target.files[0];if(!f){setStatus("No file chosen.");return}setStatus("Reading "+f.name+"...");let r=new FileReader();r.onload=()=>loadRouteText(r.result);r.onerror=()=>{setStatus("Could not read file.");alert("Could not read file")};r.readAsText(f)});
